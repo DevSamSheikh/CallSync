@@ -139,12 +139,12 @@ export async function seed() {
 
     // Create DEO
     await storage.createUser({
-      username: "deo",
+      username: "DEO",
       password: "8004",
       role: "deo",
       name: "Data Entry Operator"
     });
-    console.log("Seeded deo user");
+    console.log("Seeded DEO user");
 
     // Create Agent (Hassam Sheikh)
     const demoAgent = await storage.createUser({

@@ -85,6 +85,18 @@
   }
 }
 
+/* Hide unwanted recharts layers */
+.recharts-pie-sector:focus {
+  outline: none;
+}
+.recharts-sector:focus {
+  outline: none;
+}
+.recharts-layer.recharts-active-dot {
+  display: none;
+}
+
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 10px;
