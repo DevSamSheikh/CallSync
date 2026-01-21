@@ -144,7 +144,7 @@ export async function seed() {
       role: "deo",
       name: "Data Entry Operator"
     });
-    console.log("Seeded DEO user");
+    console.log("Seeded deo user");
 
     // Create Agent (Hassam Sheikh)
     const demoAgent = await storage.createUser({

@@ -189,6 +189,7 @@ export default function Dashboard() {
                     fill="#8884d8"
                     dataKey="value"
                     label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    isAnimationActive={false}
                   >
                     {pieData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -203,55 +204,57 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        {/* Top Performers Table */}
-        <Card className="shadow-md border-none overflow-hidden">
-          <CardHeader>
-            <CardTitle>Top Performers</CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="pl-6">Agent Name</TableHead>
-                  <TableHead>Transfers</TableHead>
-                  <TableHead className="text-right pr-6">Sales</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {agentPerformance.slice(0, 5).map((agent, i) => (
-                  <TableRow key={i}>
-                    <TableCell className="pl-6 font-medium">{agent.agentName}</TableCell>
-                    <TableCell>{agent.transfers}</TableCell>
-                    <TableCell className="text-right pr-6">{agent.sales}</TableCell>
+      {isAdmin && (
+        <div className="grid gap-4 lg:grid-cols-2">
+          {/* Top Performers Table */}
+          <Card className="shadow-md border-none overflow-hidden">
+            <CardHeader>
+              <CardTitle>Top Performers</CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="pl-6">Agent Name</TableHead>
+                    <TableHead>Transfers</TableHead>
+                    <TableHead className="text-right pr-6">Sales</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+                </TableHeader>
+                <TableBody>
+                  {agentPerformance.slice(0, 5).map((agent, i) => (
+                    <TableRow key={i}>
+                      <TableCell className="pl-6 font-medium">{agent.agentName}</TableCell>
+                      <TableCell>{agent.transfers}</TableCell>
+                      <TableCell className="text-right pr-6">{agent.sales}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
 
-        {/* Performance Bar Chart */}
-        <Card className="shadow-md border-none overflow-hidden">
-          <CardHeader>
-            <CardTitle>Agent Comparison</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-4">
-            <div className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={agentPerformance.slice(0, 5)}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-                  <XAxis dataKey="agentName" stroke="#888888" fontSize={10} tickLine={false} axisLine={false} />
-                  <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
-                  <Tooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}/>
-                  <Bar dataKey="transfers" fill="#189bfe" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="sales" fill="#f51288" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+          {/* Performance Bar Chart */}
+          <Card className="shadow-md border-none overflow-hidden">
+            <CardHeader>
+              <CardTitle>Agent Comparison</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-4">
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={agentPerformance.slice(0, 5)}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                    <XAxis dataKey="agentName" stroke="#888888" fontSize={10} tickLine={false} axisLine={false} />
+                    <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
+                    <Tooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}/>
+                    <Bar dataKey="transfers" fill="#189bfe" radius={[4, 4, 0, 0]} barSize={20} />
+                    <Bar dataKey="sales" fill="#f51288" radius={[4, 4, 0, 0]} barSize={20} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

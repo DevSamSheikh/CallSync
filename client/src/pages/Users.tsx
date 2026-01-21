@@ -45,6 +45,8 @@ export default function Users() {
   const { data: users, isLoading } = useUsers();
   const createUser = useCreateUser();
   const [open, setOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [roleFilter, setRoleFilter] = useState("all");
 
   // Redirect if not authorized (handled client-side for UX, but API is also protected)
   if (currentUser?.role !== "admin" && currentUser?.role !== "deo") {
@@ -70,9 +72,17 @@ export default function Users() {
     });
   };
 
+  const filteredUsers = users?.filter(u => {
+    const matchesSearch = 
+      u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      u.username.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesRole = roleFilter === "all" || u.role === roleFilter;
+    return matchesSearch && matchesRole;
+  });
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-3xl font-display font-bold tracking-tight">User Management</h2>
           <p className="text-muted-foreground mt-1">Manage agent accounts and permissions</p>
@@ -163,60 +173,94 @@ export default function Users() {
         </Dialog>
       </div>
 
-      <Card className="border-none shadow-md">
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input 
+            placeholder="Search by name or username..." 
+            className="pl-10 bg-white"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        <Select value={roleFilter} onValueChange={setRoleFilter}>
+          <SelectTrigger className="w-full sm:w-[180px] bg-white">
+            <SelectValue placeholder="All Roles" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Roles</SelectItem>
+            <SelectItem value="admin">Admin</SelectItem>
+            <SelectItem value="deo">DEO</SelectItem>
+            <SelectItem value="agent">Agent</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <Card className="border-none shadow-md overflow-hidden">
         <CardContent className="p-0">
-          <Table>
-            <TableHeader className="bg-muted/50">
-              <TableRow>
-                <TableHead className="pl-6">Name</TableHead>
-                <TableHead>Username</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Last IP</TableHead>
-                <TableHead className="text-right pr-6">ID</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader className="bg-muted/50">
                 <TableRow>
-                  <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
-                    Loading users...
-                  </TableCell>
+                  <TableHead className="pl-6">Name</TableHead>
+                  <TableHead>Username</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead>Last IP</TableHead>
+                  <TableHead className="text-right pr-6">ID</TableHead>
                 </TableRow>
-              ) : (
-                users?.map((user) => (
-                  <TableRow key={user.id} className="hover:bg-muted/30">
-                    <TableCell className="pl-6 font-medium">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
-                          {user.name.charAt(0)}
-                        </div>
-                        {user.name}
+              </TableHeader>
+              <TableBody>
+                {isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                      <div className="flex justify-center items-center gap-2">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Loading users...
                       </div>
                     </TableCell>
-                    <TableCell>{user.username}</TableCell>
-                    <TableCell>
-                      <Badge 
-                        variant="secondary" 
-                        className={
-                          user.role === 'admin' ? "bg-purple-100 text-purple-700 hover:bg-purple-100" :
-                          user.role === 'deo' ? "bg-amber-100 text-amber-700 hover:bg-amber-100" :
-                          "bg-slate-100 text-slate-700 hover:bg-slate-100"
-                        }
-                      >
-                        {user.role}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground font-mono text-xs">
-                      {user.lastIp || "N/A"}
-                    </TableCell>
-                    <TableCell className="text-right pr-6 text-muted-foreground font-mono text-xs">
-                      #{user.id}
+                  </TableRow>
+                ) : filteredUsers?.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                      No users found.
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                ) : (
+                  filteredUsers?.map((user) => (
+                    <TableRow key={user.id} className="hover:bg-muted/30 transition-colors">
+                      <TableCell className="pl-6 font-medium">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
+                            {user.name.charAt(0)}
+                          </div>
+                          {user.name}
+                        </div>
+                      </TableCell>
+                      <TableCell>{user.username}</TableCell>
+                      <TableCell>
+                        <Badge 
+                          variant="secondary" 
+                          className={
+                            user.role === 'admin' ? "bg-purple-100 text-purple-700 hover:bg-purple-100" :
+                            user.role === 'deo' ? "bg-amber-100 text-amber-700 hover:bg-amber-100" :
+                            "bg-slate-100 text-slate-700 hover:bg-slate-100"
+                          }
+                        >
+                          {user.role}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground font-mono text-xs">
+                        {user.lastIp || "N/A"}
+                      </TableCell>
+                      <TableCell className="text-right pr-6 text-muted-foreground font-mono text-xs">
+                        #{user.id}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
     </div>

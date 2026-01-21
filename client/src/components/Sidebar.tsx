@@ -100,7 +100,7 @@ export function Sidebar() {
       <div className="lg:hidden fixed top-4 left-4 z-50">
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
           <SheetTrigger asChild>
-            <Button size="icon" variant="outline" className="shadow-md">
+            <Button size="icon" variant="outline" className="shadow-md bg-white hover:bg-white">
               <Menu className="w-5 h-5" />
             </Button>
           </SheetTrigger>

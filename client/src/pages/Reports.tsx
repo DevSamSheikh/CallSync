@@ -27,6 +27,7 @@ export default function Reports() {
   const { data: reports, isLoading } = useReports();
   const [searchTerm, setSearchTerm] = useState("");
   const [date, setDate] = useState<Date>();
+  const [selectedState, setSelectedState] = useState("all");
 
   const handleExport = () => {
     if (!reports) return;
@@ -55,6 +56,8 @@ export default function Reports() {
     document.body.removeChild(link);
   };
 
+  const states = Array.from(new Set(reports?.map(r => r.state).filter(Boolean))) as string[];
+
   const filteredReports = reports?.filter(r => {
     const matchesSearch = 
       r.phoneNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -62,8 +65,9 @@ export default function Reports() {
       (r.remarks?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false);
     
     const matchesDate = !date || (r.timestamp && format(new Date(r.timestamp), "yyyy-MM-dd") === format(date, "yyyy-MM-dd"));
+    const matchesState = selectedState === "all" || r.state === selectedState;
     
-    return matchesSearch && matchesDate;
+    return matchesSearch && matchesDate && matchesState;
   });
 
   return (
@@ -79,41 +83,62 @@ export default function Reports() {
         </Button>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4">
+      <div className="flex flex-col lg:flex-row gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input 
             placeholder="Search by phone, closer, or remarks..." 
-            className="pl-10"
+            className="pl-10 bg-white"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant={"outline"}
-              className={cn(
-                "w-full sm:w-[240px] justify-start text-left font-normal",
-                !date && "text-muted-foreground"
-              )}
-            >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {date ? format(date, "PPP") : <span>Filter by date</span>}
+        <div className="flex flex-col sm:flex-row gap-4">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant={"outline"}
+                className={cn(
+                  "w-full sm:w-[200px] justify-start text-left font-normal bg-white",
+                  !date && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {date ? format(date, "PPP") : <span>Filter by date</span>}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={date}
+                onSelect={setDate}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+
+          <Select value={selectedState} onValueChange={setSelectedState}>
+            <SelectTrigger className="w-full sm:w-[150px] bg-white">
+              <SelectValue placeholder="All States" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All States</SelectItem>
+              {states.map(s => (
+                <SelectItem key={s} value={s}>{s}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {(date || selectedState !== "all" || searchTerm) && (
+            <Button variant="ghost" onClick={() => {
+              setDate(undefined);
+              setSelectedState("all");
+              setSearchTerm("");
+            }}>
+              Clear Filters
             </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="single"
-              selected={date}
-              onSelect={setDate}
-              initialFocus
-            />
-          </PopoverContent>
-        </Popover>
-        {date && (
-          <Button variant="ghost" onClick={() => setDate(undefined)}>Clear Date</Button>
-        )}
+          )}
+        </div>
       </div>
 
       <Card className="border-none shadow-md overflow-hidden">
