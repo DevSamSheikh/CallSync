@@ -30,6 +30,10 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
+  async updateUserIp(id: number, ip: string): Promise<void> {
+    await db.update(users).set({ lastIp: ip }).where(eq(users.id, id));
+  }
+
   async getUserByUsername(username: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.username, username));
     return user;

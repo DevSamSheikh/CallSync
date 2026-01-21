@@ -10,6 +10,7 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
   role: text("role", { enum: ["admin", "deo", "agent"] }).notNull().default("agent"),
   name: text("name").notNull(),
+  lastIp: text("last_ip"), // IP address tracking
 });
 
 export const reports = pgTable("reports", {
@@ -18,9 +19,9 @@ export const reports = pgTable("reports", {
   phoneNo: text("phone_no").notNull(),
   accidentYear: text("accident_year"),
   state: text("state"),
-  zipCode: text("zip_code"),
+  zipCode: text("zip_code"), // Kept in schema but will hide from frontend table
   fronterName: text("fronter_name").notNull(),
-  closerName: text("closer_name"),
+  closerName: text("closer_name").notNull(), // Made NOT NULL as requested
   remarks: text("remarks"),
   // Metadata
   agentId: integer("agent_id").references(() => users.id), // The user who entered/owns this record
@@ -39,7 +40,7 @@ export const insertUserSchema = createInsertSchema(users).pick({
 export const insertReportSchema = createInsertSchema(reports).omit({
   id: true,
   createdAt: true,
-  agentId: true, // Set by backend based on session or input
+  agentId: true,
 });
 
 // === TYPES ===

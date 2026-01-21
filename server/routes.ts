@@ -137,12 +137,12 @@ export async function seed() {
 
     // Seed Demo Agent
     const demoAgent = await storage.createUser({
-      username: "8021",
+      username: "8004",
       password: "password",
       role: "agent",
-      name: "Laiba Latif"
+      name: "Hassam Sheikh"
     });
-    console.log("Seeded demo agent");
+    console.log("Seeded demo agent Hassam Sheikh");
 
     // Seed Demo Reports
     const demoReports = [
@@ -152,7 +152,7 @@ export async function seed() {
         accidentYear: "2025",
         state: "AL",
         zipCode: "",
-        fronterName: "Laiba Latif (8021)",
+        fronterName: "Hassam Sheikh (8004)",
         closerName: "Zainab",
         remarks: "sounding fishy and hungup when i asked about info",
         agentId: demoAgent.id
@@ -163,7 +163,7 @@ export async function seed() {
         accidentYear: "2025",
         state: "TX",
         zipCode: "",
-        fronterName: "Laiba Latif (8021)",
+        fronterName: "Hassam Sheikh (8004)",
         closerName: "Gulfaraz",
         remarks: "Attorney dealing",
         agentId: demoAgent.id
@@ -174,7 +174,7 @@ export async function seed() {
         accidentYear: "2025",
         state: "TX",
         zipCode: "",
-        fronterName: "Laiba Latif (8021)",
+        fronterName: "Hassam Sheikh (8004)",
         closerName: "Sami",
         remarks: "Cx said everyone got the ticket",
         agentId: demoAgent.id
@@ -185,7 +185,7 @@ export async function seed() {
         accidentYear: "2024",
         state: "AL",
         zipCode: "",
-        fronterName: "Laiba Latif (8021)",
+        fronterName: "Hassam Sheikh (8004)",
         closerName: "Gulfaraz",
         remarks: "acc 2023",
         agentId: demoAgent.id
@@ -196,7 +196,7 @@ export async function seed() {
         accidentYear: "2025",
         state: "NV",
         zipCode: "",
-        fronterName: "Laiba Latif (8021)",
+        fronterName: "Hassam Sheikh (8004)",
         closerName: "Gulfaraz",
         remarks: "DNC",
         agentId: demoAgent.id
@@ -207,7 +207,7 @@ export async function seed() {
         accidentYear: "2024",
         state: "TX",
         zipCode: "",
-        fronterName: "Laiba Latif (8021)",
+        fronterName: "Hassam Sheikh (8004)",
         closerName: "Zainab",
         remarks: "Already claimed",
         agentId: demoAgent.id
