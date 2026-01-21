@@ -61,13 +61,19 @@ export function setupAuth(app: Express) {
   });
 
   app.post("/api/login", (req, res, next) => {
-    passport.authenticate("local", (err: any, user: User, info: any) => {
+    passport.authenticate("local", async (err: any, user: User, info: any) => {
       if (err) {
         return next(err);
       }
       if (!user) {
         return res.status(401).json({ message: info?.message || "Authentication failed" });
       }
+      
+      const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+      if (typeof ip === 'string') {
+        await storage.updateUserIp(user.id, ip);
+      }
+
       req.logIn(user, (err) => {
         if (err) {
           return next(err);

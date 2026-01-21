@@ -5,42 +5,15 @@ import { setupAuth } from "./auth";
 import { api } from "@shared/routes";
 import { z } from "zod";
 import { insertReportSchema } from "@shared/schema";
+import passport from "passport";
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
   
-  // auth.ts already handles session and user finding. 
-  // Let's hook into the login logic to update IP.
-  app.post("/api/login", (req, res, next) => {
-    passport.authenticate("local", async (err: any, user: any, info: any) => {
-      if (err) return next(err);
-      if (!user) return res.status(401).json(info);
-      
-      const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-      if (typeof ip === 'string') {
-        await storage.updateUserIp(user.id, ip);
-      }
-      
-      req.logIn(user, (err) => {
-        if (err) return next(err);
-        res.json(user);
-      });
-    })(req, res, next);
-  });
-
-  app.post("/api/logout", (req, res, next) => {
-    req.logout((err) => {
-      if (err) return next(err);
-      res.sendStatus(200);
-    });
-  });
-
-  app.get("/api/user", (req, res) => {
-    if (!req.isAuthenticated()) return res.sendStatus(401);
-    res.json(req.user);
-  });
+  // Set up authentication (passport)
+  setupAuth(app);
 
   // === Users API ===
   app.get(api.users.list.path, async (req, res) => {
@@ -151,22 +124,32 @@ export async function registerRoutes(
   return httpServer;
 }
 
-// Helper to seed admin user and demo data if none exists
+// Helper to seed users and demo data if none exists
 export async function seed() {
-  const existingUser = await storage.getUserByUsername("admin");
-  if (!existingUser) {
+  const existingAdmin = await storage.getUserByUsername("admin");
+  if (!existingAdmin) {
+    // Create Admin
     await storage.createUser({
       username: "admin",
-      password: "adminpassword", // In production, hash this!
+      password: "8004",
       role: "admin",
       name: "System Administrator"
     });
     console.log("Seeded admin user");
 
-    // Seed Demo Agent
+    // Create DEO
+    await storage.createUser({
+      username: "deo",
+      password: "8004",
+      role: "deo",
+      name: "Data Entry Operator"
+    });
+    console.log("Seeded DEO user");
+
+    // Create Agent (Hassam Sheikh)
     const demoAgent = await storage.createUser({
-      username: "8004",
-      password: "password",
+      username: "agent",
+      password: "8004",
       role: "agent",
       name: "Hassam Sheikh"
     });
