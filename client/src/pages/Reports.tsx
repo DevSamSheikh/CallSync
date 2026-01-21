@@ -1,4 +1,4 @@
-import { useReports } from "@/hooks/use-reports";
+import { useReports, useDeleteReport } from "@/hooks/use-reports";
 import { format } from "date-fns";
 import { 
   Table, 
@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Download, Loader2, Search, Filter } from "lucide-react";
+import { Download, Loader2, Search, MoreVertical, Edit2, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
@@ -22,12 +22,23 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function Reports() {
+  const { user } = useAuth();
   const { data: reports, isLoading } = useReports();
+  const deleteReport = useDeleteReport();
   const [searchTerm, setSearchTerm] = useState("");
   const [date, setDate] = useState<Date>();
   const [selectedState, setSelectedState] = useState("all");
+
+  const isAdminOrDeo = user?.role === "admin" || user?.role === "deo";
 
   const handleExport = () => {
     if (!reports) return;
@@ -155,7 +166,8 @@ export default function Reports() {
                   <TableHead>Accident Year</TableHead>
                   <TableHead>State</TableHead>
                   <TableHead>Closer</TableHead>
-                  <TableHead className="pr-6">Remarks</TableHead>
+                  <TableHead>Remarks</TableHead>
+                  {isAdminOrDeo && <TableHead className="pr-6 text-right">Actions</TableHead>}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -191,6 +203,30 @@ export default function Reports() {
                       <TableCell className="pr-6 max-w-[300px] truncate" title={report.remarks || ""}>
                         {report.remarks}
                       </TableCell>
+                      {isAdminOrDeo && (
+                        <TableCell className="pr-6 text-right">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem className="gap-2">
+                                <Edit2 className="h-3.5 w-3.5" />
+                                Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                className="gap-2 text-destructive focus:text-destructive"
+                                onClick={() => deleteReport.mutate(report.id)}
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))
                 )}

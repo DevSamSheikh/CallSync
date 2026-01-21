@@ -40,16 +40,68 @@ import { UserPlus, Shield, User as UserIcon } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 
+import { useUsers, useCreateUser, useDeleteUser } from "@/hooks/use-users";
+import { useAuth } from "@/hooks/use-auth";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { insertUserSchema, type InsertUser } from "@shared/schema";
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from "@/components/ui/table";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { UserPlus, Shield, User as UserIcon, Search, Loader2, MoreVertical, Edit2, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
 export default function Users() {
   const { user: currentUser } = useAuth();
   const { data: users, isLoading } = useUsers();
   const createUser = useCreateUser();
+  const deleteUser = useDeleteUser();
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
 
+  const isAdmin = currentUser?.role === "admin";
+  const isAdminOrDeo = currentUser?.role === "admin" || currentUser?.role === "deo";
+
   // Redirect if not authorized (handled client-side for UX, but API is also protected)
-  if (currentUser?.role !== "admin" && currentUser?.role !== "deo") {
+  if (!isAdminOrDeo) {
     return <div className="p-8">Unauthorized access</div>;
   }
 
@@ -206,13 +258,14 @@ export default function Users() {
                   <TableHead>Username</TableHead>
                   <TableHead>Role</TableHead>
                   <TableHead>Last IP</TableHead>
-                  <TableHead className="text-right pr-6">ID</TableHead>
+                  <TableHead>ID</TableHead>
+                  <TableHead className="text-right pr-6">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                    <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
                       <div className="flex justify-center items-center gap-2">
                         <Loader2 className="w-4 h-4 animate-spin" />
                         Loading users...
@@ -221,7 +274,7 @@ export default function Users() {
                   </TableRow>
                 ) : filteredUsers?.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                    <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
                       No users found.
                     </TableCell>
                   </TableRow>
@@ -252,8 +305,30 @@ export default function Users() {
                       <TableCell className="text-muted-foreground font-mono text-xs">
                         {user.lastIp || "N/A"}
                       </TableCell>
-                      <TableCell className="text-right pr-6 text-muted-foreground font-mono text-xs">
+                      <TableCell className="text-muted-foreground font-mono text-xs">
                         #{user.id}
+                      </TableCell>
+                      <TableCell className="pr-6 text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem className="gap-2">
+                              <Edit2 className="h-3.5 w-3.5" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              className="gap-2 text-destructive focus:text-destructive"
+                              onClick={() => deleteUser.mutate(user.id)}
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </TableCell>
                     </TableRow>
                   ))

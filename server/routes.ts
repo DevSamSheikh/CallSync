@@ -158,7 +158,7 @@ export async function seed() {
     // Seed Demo Reports
     const demoReports = [
       {
-        timestamp: new Date("1/3/2026 21:18:25"),
+        timestamp: new Date("2026-01-03 21:18:25"),
         phoneNo: "2054711708",
         accidentYear: "2025",
         state: "AL",
@@ -169,7 +169,7 @@ export async function seed() {
         agentId: demoAgent.id
       },
       {
-        timestamp: new Date("1/3/2026 21:29:53"),
+        timestamp: new Date("2026-01-03 21:29:53"),
         phoneNo: "2147297217",
         accidentYear: "2025",
         state: "TX",
@@ -180,7 +180,7 @@ export async function seed() {
         agentId: demoAgent.id
       },
       {
-        timestamp: new Date("1/3/2026 22:27:53"),
+        timestamp: new Date("2026-01-03 22:27:53"),
         phoneNo: "3256273257",
         accidentYear: "2025",
         state: "TX",
@@ -191,7 +191,7 @@ export async function seed() {
         agentId: demoAgent.id
       },
       {
-        timestamp: new Date("1/3/2026 23:31:35"),
+        timestamp: new Date("2026-01-03 23:31:35"),
         phoneNo: "2054221673",
         accidentYear: "2024",
         state: "AL",
@@ -202,7 +202,7 @@ export async function seed() {
         agentId: demoAgent.id
       },
       {
-        timestamp: new Date("1/3/2026 23:46:43"),
+        timestamp: new Date("2026-01-03 23:46:43"),
         phoneNo: "3095073396",
         accidentYear: "2025",
         state: "NV",
@@ -213,7 +213,7 @@ export async function seed() {
         agentId: demoAgent.id
       },
       {
-        timestamp: new Date("1/4/2026 1:19:49"),
+        timestamp: new Date("2026-01-04 01:19:49"),
         phoneNo: "4692458605",
         accidentYear: "2024",
         state: "TX",
@@ -221,6 +221,28 @@ export async function seed() {
         fronterName: "Hassam Sheikh (8004)",
         closerName: "Zainab",
         remarks: "Already claimed",
+        agentId: demoAgent.id
+      },
+      {
+        timestamp: new Date("2026-01-05 10:15:00"),
+        phoneNo: "5125550199",
+        accidentYear: "2025",
+        state: "CA",
+        zipCode: "",
+        fronterName: "Hassam Sheikh (8004)",
+        closerName: "Sami",
+        remarks: "Interested in sale",
+        agentId: demoAgent.id
+      },
+      {
+        timestamp: new Date("2026-01-06 14:30:00"),
+        phoneNo: "6175550288",
+        accidentYear: "2024",
+        state: "MA",
+        zipCode: "",
+        fronterName: "Agent Smith",
+        closerName: "Gulfaraz",
+        remarks: "Successful Transfer",
         agentId: demoAgent.id
       }
     ];

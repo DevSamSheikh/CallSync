@@ -185,19 +185,6 @@ export default function DataEntry() {
                         />
                         <FormField
                           control={form.control}
-                          name="zipCode"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Zip Code</FormLabel>
-                              <FormControl>
-                                <Input placeholder="12345" {...field} value={field.value || ''} className="bg-white" />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
                           name="fronterName"
                           render={({ field }) => (
                             <FormItem>
@@ -305,7 +292,6 @@ export default function DataEntry() {
                       <code className="bg-black/5 dark:bg-white/10 px-1 rounded">Phone No</code>, 
                       <code className="bg-black/5 dark:bg-white/10 px-1 rounded">Accident Year</code>, 
                       <code className="bg-black/5 dark:bg-white/10 px-1 rounded">State</code>, 
-                      <code className="bg-black/5 dark:bg-white/10 px-1 rounded">Zip Code</code>, 
                       <code className="bg-black/5 dark:bg-white/10 px-1 rounded">Fronter</code>, 
                       <code className="bg-black/5 dark:bg-white/10 px-1 rounded">Closer</code>, 
                       <code className="bg-black/5 dark:bg-white/10 px-1 rounded">Remarks</code>

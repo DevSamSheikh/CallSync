@@ -81,7 +81,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
         <KPICard 
           title={isAdmin ? "Total Agents" : "Total Calls"} 
           value={isAdmin ? kpis.totalAgents : kpis.totalCalls} 
@@ -128,9 +128,9 @@ export default function Dashboard() {
             </Select>
           </CardHeader>
           <CardContent className="pt-4">
-            <div className="h-[350px]">
+            <div className="h-[350px] -ml-4">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={filteredDailyStats}>
+                <LineChart data={filteredDailyStats} margin={{ left: 0, right: 20 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
                   <XAxis 
                     dataKey="date" 
@@ -188,7 +188,7 @@ export default function Dashboard() {
                       outerRadius={110}
                       fill="#8884d8"
                       dataKey="value"
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      label={false}
                       isAnimationActive={false}
                       stroke="none"
                     >
@@ -243,9 +243,9 @@ export default function Dashboard() {
               <CardTitle>Agent Comparison</CardTitle>
             </CardHeader>
             <CardContent className="pt-4">
-              <div className="h-[300px]">
+              <div className="h-[300px] -ml-4">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={agentPerformance.slice(0, 5)}>
+                  <BarChart data={agentPerformance.slice(0, 5)} margin={{ left: 0, right: 20 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
                     <XAxis dataKey="agentName" stroke="#888888" fontSize={10} tickLine={false} axisLine={false} />
                     <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
