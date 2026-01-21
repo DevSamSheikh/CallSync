@@ -11,8 +11,36 @@ export async function registerRoutes(
   app: Express
 ): Promise<Server> {
   
-  // Set up authentication (passport)
-  setupAuth(app);
+  // auth.ts already handles session and user finding. 
+  // Let's hook into the login logic to update IP.
+  app.post("/api/login", (req, res, next) => {
+    passport.authenticate("local", async (err: any, user: any, info: any) => {
+      if (err) return next(err);
+      if (!user) return res.status(401).json(info);
+      
+      const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+      if (typeof ip === 'string') {
+        await storage.updateUserIp(user.id, ip);
+      }
+      
+      req.logIn(user, (err) => {
+        if (err) return next(err);
+        res.json(user);
+      });
+    })(req, res, next);
+  });
+
+  app.post("/api/logout", (req, res, next) => {
+    req.logout((err) => {
+      if (err) return next(err);
+      res.sendStatus(200);
+    });
+  });
+
+  app.get("/api/user", (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    res.json(req.user);
+  });
 
   // === Users API ===
   app.get(api.users.list.path, async (req, res) => {

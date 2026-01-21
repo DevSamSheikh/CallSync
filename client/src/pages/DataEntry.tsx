@@ -194,9 +194,9 @@ export default function DataEntry() {
                       name="closerName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Closer Name (Optional)</FormLabel>
+                          <FormLabel>Closer Name</FormLabel>
                           <FormControl>
-                            <Input placeholder="Closer Name" {...field} value={field.value || ''} />
+                            <Input placeholder="Closer Name" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

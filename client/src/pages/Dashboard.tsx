@@ -1,7 +1,7 @@
 import { useAnalytics } from "@/hooks/use-analytics";
 import { KPICard } from "@/components/KPICard";
 import { 
-  PhoneCall, 
+  Users as UsersIcon, 
   ArrowLeftRight, 
   BadgeCheck, 
   Percent 
@@ -23,11 +23,30 @@ import {
 } from "recharts";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useState } from "react";
+import { useAuth } from "@/hooks/use-auth";
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from "@/components/ui/table";
 
 const COLORS = ['#189bfe', '#f51288', '#00C49F', '#FFBB28'];
 
 export default function Dashboard() {
+  const { user } = useAuth();
   const { data, isLoading } = useAnalytics();
+  const [view, setView] = useState<"weekly" | "monthly">("monthly");
 
   if (isLoading) {
     return <DashboardSkeleton />;
@@ -37,23 +56,36 @@ export default function Dashboard() {
 
   const { kpis, dailyStats, agentPerformance } = data;
 
+  // Filter daily stats based on view
+  const filteredDailyStats = view === "weekly" 
+    ? dailyStats.slice(-7) 
+    : dailyStats;
+
   const pieData = [
     { name: 'Transfers', value: kpis.totalTransfers },
     { name: 'Sales', value: kpis.totalSales },
   ];
 
+  const isAdmin = user?.role === "admin";
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div>
-        <h2 className="text-3xl font-display font-bold tracking-tight">Dashboard</h2>
-        <p className="text-muted-foreground mt-1">Real-time performance overview</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 className="text-3xl font-display font-bold tracking-tight">
+            {isAdmin ? "Admin Dashboard" : "Agent Performance"}
+          </h2>
+          <p className="text-muted-foreground mt-1">
+            {isAdmin ? "Overview of call center operations" : "Track your personal progress"}
+          </p>
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <KPICard 
-          title="Total Calls" 
-          value={kpis.totalCalls} 
-          icon={PhoneCall}
+          title={isAdmin ? "Total Agents" : "Total Calls"} 
+          value={isAdmin ? kpis.totalAgents : kpis.totalCalls} 
+          icon={UsersIcon}
           className="border-l-4 border-l-blue-500"
           iconClassName="bg-blue-500/10 text-blue-500"
         />
@@ -80,16 +112,25 @@ export default function Dashboard() {
         />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+      <div className="grid gap-4 lg:grid-cols-7">
         {/* Daily Performance Line Chart */}
-        <Card className="col-span-4 shadow-md border-none">
-          <CardHeader>
+        <Card className="lg:col-span-4 shadow-md border-none overflow-hidden">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <CardTitle>Daily Performance</CardTitle>
+            <Select value={view} onValueChange={(v: any) => setView(v)}>
+              <SelectTrigger className="w-[120px]">
+                <SelectValue placeholder="Select view" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="weekly">Weekly</SelectItem>
+                <SelectItem value="monthly">Monthly</SelectItem>
+              </SelectContent>
+            </Select>
           </CardHeader>
-          <CardContent className="pl-2">
+          <CardContent className="pt-4">
             <div className="h-[350px]">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={dailyStats}>
+                <LineChart data={filteredDailyStats}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
                   <XAxis 
                     dataKey="date" 
@@ -132,7 +173,7 @@ export default function Dashboard() {
         </Card>
 
         {/* Transfer vs Sale Ratio Pie Chart */}
-        <Card className="col-span-3 shadow-md border-none">
+        <Card className="lg:col-span-3 shadow-md border-none overflow-hidden">
           <CardHeader>
             <CardTitle>Transfer vs Sale Ratio</CardTitle>
           </CardHeader>
@@ -144,11 +185,10 @@ export default function Dashboard() {
                     data={pieData}
                     cx="50%"
                     cy="50%"
-                    innerRadius={80}
                     outerRadius={110}
                     fill="#8884d8"
-                    paddingAngle={5}
                     dataKey="value"
+                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                   >
                     {pieData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -163,27 +203,55 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* Agent Performance Bar Chart */}
-      <Card className="shadow-md border-none">
-        <CardHeader>
-          <CardTitle>Agent Performance</CardTitle>
-        </CardHeader>
-        <CardContent className="pl-2">
-          <div className="h-[400px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={agentPerformance}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-                <XAxis dataKey="agentName" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
-                <Tooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}/>
-                <Legend />
-                <Bar dataKey="transfers" fill="#189bfe" radius={[4, 4, 0, 0]} barSize={40} />
-                <Bar dataKey="sales" fill="#f51288" radius={[4, 4, 0, 0]} barSize={40} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="grid gap-4 lg:grid-cols-2">
+        {/* Top Performers Table */}
+        <Card className="shadow-md border-none overflow-hidden">
+          <CardHeader>
+            <CardTitle>Top Performers</CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="pl-6">Agent Name</TableHead>
+                  <TableHead>Transfers</TableHead>
+                  <TableHead className="text-right pr-6">Sales</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {agentPerformance.slice(0, 5).map((agent, i) => (
+                  <TableRow key={i}>
+                    <TableCell className="pl-6 font-medium">{agent.agentName}</TableCell>
+                    <TableCell>{agent.transfers}</TableCell>
+                    <TableCell className="text-right pr-6">{agent.sales}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+
+        {/* Performance Bar Chart */}
+        <Card className="shadow-md border-none overflow-hidden">
+          <CardHeader>
+            <CardTitle>Agent Comparison</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-4">
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={agentPerformance.slice(0, 5)}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                  <XAxis dataKey="agentName" stroke="#888888" fontSize={10} tickLine={false} axisLine={false} />
+                  <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
+                  <Tooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}/>
+                  <Bar dataKey="transfers" fill="#189bfe" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="sales" fill="#f51288" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
@@ -198,9 +266,9 @@ function DashboardSkeleton() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-32 rounded-2xl" />)}
       </div>
-      <div className="grid gap-4 md:grid-cols-7">
-        <Skeleton className="col-span-4 h-[400px] rounded-2xl" />
-        <Skeleton className="col-span-3 h-[400px] rounded-2xl" />
+      <div className="grid gap-4 lg:grid-cols-7">
+        <Skeleton className="lg:col-span-4 h-[400px] rounded-2xl" />
+        <Skeleton className="lg:col-span-3 h-[400px] rounded-2xl" />
       </div>
       <Skeleton className="h-[400px] rounded-2xl" />
     </div>

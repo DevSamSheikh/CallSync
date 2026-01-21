@@ -171,13 +171,14 @@ export default function Users() {
                 <TableHead className="pl-6">Name</TableHead>
                 <TableHead>Username</TableHead>
                 <TableHead>Role</TableHead>
+                <TableHead>Last IP</TableHead>
                 <TableHead className="text-right pr-6">ID</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
+                  <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
                     Loading users...
                   </TableCell>
                 </TableRow>
@@ -204,6 +205,9 @@ export default function Users() {
                       >
                         {user.role}
                       </Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground font-mono text-xs">
+                      {user.lastIp || "N/A"}
                     </TableCell>
                     <TableCell className="text-right pr-6 text-muted-foreground font-mono text-xs">
                       #{user.id}

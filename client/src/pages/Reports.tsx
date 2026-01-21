@@ -10,17 +10,29 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Download, Loader2 } from "lucide-react";
+import { Download, Loader2, Search, Filter } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
+import { 
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export default function Reports() {
   const { data: reports, isLoading } = useReports();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [date, setDate] = useState<Date>();
 
   const handleExport = () => {
     if (!reports) return;
     
     // Simple CSV export logic
-    const headers = ["Timestamp", "Phone No", "Accident Year", "State", "Zip Code", "Fronter", "Closer", "Remarks"];
+    const headers = ["Timestamp", "Phone No", "Accident Year", "State", "Closer", "Remarks"];
     const csvContent = [
       headers.join(","),
       ...reports.map(r => [
@@ -28,8 +40,6 @@ export default function Reports() {
         r.phoneNo,
         r.accidentYear || "",
         r.state || "",
-        r.zipCode || "",
-        r.fronterName,
         r.closerName || "",
         `"${r.remarks || ""}"` // Escape quotes for remarks
       ].join(","))
@@ -45,12 +55,23 @@ export default function Reports() {
     document.body.removeChild(link);
   };
 
+  const filteredReports = reports?.filter(r => {
+    const matchesSearch = 
+      r.phoneNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      r.closerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (r.remarks?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false);
+    
+    const matchesDate = !date || (r.timestamp && format(new Date(r.timestamp), "yyyy-MM-dd") === format(date, "yyyy-MM-dd"));
+    
+    return matchesSearch && matchesDate;
+  });
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-3xl font-display font-bold tracking-tight">Reports</h2>
-          <p className="text-muted-foreground mt-1">Detailed log of all call activities</p>
+          <p className="text-muted-foreground mt-1">Detailed log of call activities</p>
         </div>
         <Button onClick={handleExport} disabled={!reports?.length} className="shadow-lg shadow-primary/25">
           <Download className="w-4 h-4 mr-2" />
@@ -58,64 +79,91 @@ export default function Reports() {
         </Button>
       </div>
 
-      <Card className="border-none shadow-md">
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input 
+            placeholder="Search by phone, closer, or remarks..." 
+            className="pl-10"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant={"outline"}
+              className={cn(
+                "w-full sm:w-[240px] justify-start text-left font-normal",
+                !date && "text-muted-foreground"
+              )}
+            >
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {date ? format(date, "PPP") : <span>Filter by date</span>}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              mode="single"
+              selected={date}
+              onSelect={setDate}
+              initialFocus
+            />
+          </PopoverContent>
+        </Popover>
+        {date && (
+          <Button variant="ghost" onClick={() => setDate(undefined)}>Clear Date</Button>
+        )}
+      </div>
+
+      <Card className="border-none shadow-md overflow-hidden">
         <CardHeader>
           <CardTitle>Activity Log</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="rounded-xl border border-border/50 overflow-hidden">
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
             <Table>
               <TableHeader className="bg-muted/50">
                 <TableRow>
-                  <TableHead>Timestamp</TableHead>
+                  <TableHead className="pl-6">Timestamp</TableHead>
                   <TableHead>Phone No</TableHead>
                   <TableHead>Accident Year</TableHead>
                   <TableHead>State</TableHead>
-                  <TableHead>Zip</TableHead>
-                  <TableHead>Fronter</TableHead>
                   <TableHead>Closer</TableHead>
-                  <TableHead>Remarks</TableHead>
+                  <TableHead className="pr-6">Remarks</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="h-24 text-center">
+                    <TableCell colSpan={6} className="h-24 text-center">
                       <div className="flex justify-center items-center gap-2 text-muted-foreground">
                         <Loader2 className="w-4 h-4 animate-spin" />
                         Loading reports...
                       </div>
                     </TableCell>
                   </TableRow>
-                ) : reports?.length === 0 ? (
+                ) : filteredReports?.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="h-24 text-center text-muted-foreground">
+                    <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
                       No reports found.
                     </TableCell>
                   </TableRow>
                 ) : (
-                  reports?.map((report) => (
+                  filteredReports?.map((report) => (
                     <TableRow key={report.id} className="hover:bg-muted/30 transition-colors">
-                      <TableCell className="font-mono text-xs">
+                      <TableCell className="pl-6 font-mono text-xs">
                         {report.timestamp ? format(new Date(report.timestamp), "MMM dd, HH:mm:ss") : "-"}
                       </TableCell>
                       <TableCell className="font-medium">{report.phoneNo}</TableCell>
                       <TableCell>{report.accidentYear}</TableCell>
                       <TableCell>{report.state}</TableCell>
-                      <TableCell>{report.zipCode}</TableCell>
                       <TableCell>
-                        <Badge variant="outline" className="font-normal bg-blue-50 text-blue-700 border-blue-200">
-                          {report.fronterName}
+                        <Badge variant="outline" className="font-normal bg-pink-50 text-pink-700 border-pink-200">
+                          {report.closerName}
                         </Badge>
                       </TableCell>
-                      <TableCell>
-                        {report.closerName && (
-                          <Badge variant="outline" className="font-normal bg-pink-50 text-pink-700 border-pink-200">
-                            {report.closerName}
-                          </Badge>
-                        )}
-                      </TableCell>
-                      <TableCell className="max-w-[200px] truncate" title={report.remarks || ""}>
+                      <TableCell className="pr-6 max-w-[300px] truncate" title={report.remarks || ""}>
                         {report.remarks}
                       </TableCell>
                     </TableRow>

@@ -25,8 +25,10 @@ export function Sidebar() {
   const navItems = [
     { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { label: "Reports", href: "/reports", icon: FileText },
-    { label: "Data Entry", href: "/entry", icon: PlusCircle },
-    ...(isAdminOrDeo ? [{ label: "Users", href: "/users", icon: Users }] : []),
+    ...(isAdminOrDeo ? [
+      { label: "Data Entry", href: "/entry", icon: PlusCircle },
+      { label: "Users", href: "/users", icon: Users }
+    ] : []),
   ];
 
   const SidebarContent = () => (

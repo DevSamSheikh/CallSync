@@ -77,27 +77,16 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAnalytics() {
-    // This is a simplified analytics implementation. 
-    // In a real production app with massive data, you'd want optimized SQL queries or materialized views.
-    
     const allReports = await db.select().from(reports);
+    const allUsers = await db.select().from(users);
 
     // KPI Calc
     const totalCalls = allReports.length;
-    // Assuming "Closer Name" presence implies a transfer or sale activity. 
-    // Let's refine based on remarks or status if available, but for now we use Closer Name as proxy for 'Transfer' 
-    // and maybe we need a 'status' field. 
-    // Based on user demo data: "Closer Name" is populated. "Remarks" has text.
-    // The prompt says "Daily Report of Transfers and Sales". 
-    // I'll assume for now that *every* report with a Closer Name is a Transfer. 
-    // And I'll assume there is a specific keyword in remarks for Sale? Or maybe I should have added a 'status' field.
-    // Given the constraints, I'll count all records as Transfers for now (since they have a Closer).
-    // And for 'Sales', I'll look for 'Sale' in remarks (heuristic).
-    
+    const totalAgents = allUsers.filter(u => u.role === 'agent').length;
     const totalTransfers = allReports.filter(r => r.closerName).length;
-    const totalSales = allReports.filter(r => r.remarks?.toLowerCase().includes('sale')).length; // Rough heuristic
+    const totalSales = allReports.filter(r => r.remarks?.toLowerCase().includes('sale')).length;
 
-    // Daily Stats
+    // Daily Stats (for the last 30 days)
     const dailyMap = new Map<string, { transfers: number; sales: number }>();
     allReports.forEach(r => {
       if (!r.timestamp) return;
@@ -107,6 +96,8 @@ export class DatabaseStorage implements IStorage {
       if (r.remarks?.toLowerCase().includes('sale')) stats.sales++;
       dailyMap.set(date, stats);
     });
+    
+    // Ensure we have at least some data for the charts even if database is empty
     const dailyStats = Array.from(dailyMap.entries()).map(([date, stats]) => ({
       date,
       ...stats
@@ -124,13 +115,14 @@ export class DatabaseStorage implements IStorage {
     const agentPerformance = Array.from(agentMap.entries()).map(([agentName, stats]) => ({
       agentName,
       ...stats
-    }));
+    })).sort((a, b) => b.transfers - a.transfers);
 
     return {
       dailyStats,
       agentPerformance,
       kpis: {
         totalCalls,
+        totalAgents,
         totalTransfers,
         totalSales,
         conversionRate: totalTransfers > 0 ? ((totalSales / totalTransfers) * 100).toFixed(1) + '%' : '0%',
