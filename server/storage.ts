@@ -13,6 +13,8 @@ export interface IStorage {
   createReport(report: InsertReport): Promise<Report>;
   bulkCreateReports(reportsData: InsertReport[]): Promise<Report[]>;
   getReports(filters?: { startDate?: Date; endDate?: Date; agentId?: number }): Promise<Report[]>;
+  deleteReport(id: number): Promise<void>;
+  deleteUser(id: number): Promise<void>;
   
   // Analytics
   getAnalytics(): Promise<{
@@ -74,6 +76,14 @@ export class DatabaseStorage implements IStorage {
       .from(reports)
       .where(conditions.length > 0 ? and(...conditions) : undefined)
       .orderBy(desc(reports.timestamp));
+  }
+
+  async deleteReport(id: number): Promise<void> {
+    await db.delete(reports).where(eq(reports.id, id));
+  }
+
+  async deleteUser(id: number): Promise<void> {
+    await db.delete(users).where(eq(users.id, id));
   }
 
   async getAnalytics() {

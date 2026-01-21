@@ -20,6 +20,35 @@ export function useReports(filters?: ReportsFilter) {
   });
 }
 
+export function useDeleteReport() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async (id: number) => {
+      const res = await fetch(`/api/reports/${id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Failed to delete report");
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [api.reports.list.path] });
+      queryClient.invalidateQueries({ queryKey: [api.analytics.dashboard.path] });
+      toast({
+        title: "Report Deleted",
+        description: "The record has been removed.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+}
+
 export function useCreateReport() {
   const queryClient = useQueryClient();
   const { toast } = useToast();

@@ -45,6 +45,14 @@ export async function registerRoutes(
     }
   });
 
+  app.delete("/api/users/:id", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    if (req.user!.role !== 'admin') return res.sendStatus(403);
+    
+    await storage.deleteUser(parseInt(req.params.id));
+    res.sendStatus(200);
+  });
+
   // === Reports API ===
   app.get(api.reports.list.path, async (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
@@ -108,6 +116,14 @@ export async function registerRoutes(
         res.status(500).json({ message: "Internal server error" });
       }
     }
+  });
+
+  app.delete("/api/reports/:id", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    if (req.user!.role === 'agent') return res.sendStatus(403);
+    
+    await storage.deleteReport(parseInt(req.params.id));
+    res.sendStatus(200);
   });
 
   // === Analytics API ===
