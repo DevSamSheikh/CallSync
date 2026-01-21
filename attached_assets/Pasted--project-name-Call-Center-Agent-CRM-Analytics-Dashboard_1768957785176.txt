@@ -1,0 +1,238 @@
+{
+  "project_name": "Call Center Agent CRM & Analytics Dashboard",
+  "goal": "Build a secure, scalable MERN stack web application for a call center where agents can track their performance using visual analytics and detailed reports.",
+  "tech_stack": {
+    "frontend": {
+      "framework": "React.js",
+      "state_management": "Redux Toolkit",
+      "styling": "Tailwind CSS",
+      "ui_library": "shadcn/ui",
+      "charts": "Recharts or Chart.js",
+      "routing": "React Router"
+    },
+    "backend": {
+      "runtime": "Node.js",
+      "framework": "Express.js",
+      "database": "MongoDB",
+      "auth": "JWT + Role Based Access Control",
+      "file_upload": "Multer"
+    }
+  },
+
+  "design_guidelines": {
+    "ui_style": "Modern, clean, SaaS dashboard",
+    "inspiration": "Use uploaded image for UI reference",
+    "theme_colors": {
+      "primary": "#189bfe",
+      "secondary": "#f51288",
+      "dark": "#000000"
+    },
+    "layout": "Sidebar dashboard layout",
+    "responsiveness": "Fully responsive for desktop and tablet"
+  },
+
+  "roles_and_permissions": {
+    "admin": {
+      "access": [
+        "Manage users",
+        "View all reports",
+        "Edit/Delete any data",
+        "Upload CSV/Excel",
+        "Create agent IDs",
+        "System settings"
+      ]
+    },
+    "deo": {
+      "access": [
+        "Add new records",
+        "Edit records",
+        "Upload CSV/Excel",
+        "Create new agent IDs"
+      ]
+    },
+    "agent": {
+      "access": [
+        "Login",
+        "View own performance",
+        "Analytics dashboard",
+        "Reports"
+      ]
+    }
+  },
+
+  "features": {
+    "authentication": [
+      "Secure login",
+      "JWT tokens",
+      "Role-based route protection"
+    ],
+
+    "data_input": [
+      "Manual form entry",
+      "CSV upload",
+      "Excel upload",
+      "Validation on all fields"
+    ],
+
+    "analytics": {
+      "charts": [
+        {
+          "type": "Bar Chart",
+          "title": "Agent Performance Comparison"
+        },
+        {
+          "type": "Line Chart",
+          "title": "Daily Transfers & Sales"
+        },
+        {
+          "type": "Pie Chart",
+          "title": "Transfer vs Sale Ratio"
+        }
+      ]
+    },
+
+    "table": {
+      "columns": [
+        "Sr. No",
+        "Timestamp",
+        "Phone No",
+        "Accident Year",
+        "State",
+        "Zip Code",
+        "Fronter Name",
+        "Closer Name",
+        "Remarks"
+      ],
+      "features": [
+        "Search",
+        "Pagination",
+        "Sorting",
+        "Export"
+      ]
+    }
+  },
+
+  "security": [
+    "JWT authentication",
+    "Role based middleware",
+    "Password hashing",
+    "Protected APIs",
+    "Input sanitization"
+  ],
+
+  "development_flow": [
+    "Build complete frontend first",
+    "Then integrate backend",
+    "Use reusable generic components",
+    "Keep folder structure clean",
+    "Write human-readable clean code",
+    "Use environment variables",
+    "Prepare for scalability"
+  ],
+
+  "frontend_structure": {
+    "folders": [
+      "components/common",
+      "components/charts",
+      "components/forms",
+      "layouts",
+      "pages",
+      "redux",
+      "services",
+      "utils"
+    ],
+    "generic_components": [
+      "Table",
+      "Input",
+      "Button",
+      "Modal",
+      "ChartWrapper"
+    ]
+  },
+
+  "backend_structure": {
+    "folders": [
+      "controllers",
+      "models",
+      "routes",
+      "middlewares",
+      "utils",
+      "config"
+    ]
+  },
+
+  "demo_data": {
+    "agent": "Laiba Latif (8021)",
+    "records": [
+      {
+        "timestamp": "1/3/2026 21:18:25",
+        "phone": "2054711708",
+        "accident_year": "2025",
+        "state": "AL",
+        "zip": "",
+        "fronter": "Laiba Latif (8021)",
+        "closer": "Zainab",
+        "remarks": "sounding fishy and hungup when i asked about info"
+      },
+      {
+        "timestamp": "1/3/2026 21:29:53",
+        "phone": "2147297217",
+        "accident_year": "2025",
+        "state": "TX",
+        "zip": "",
+        "fronter": "Laiba Latif (8021)",
+        "closer": "Gulfaraz",
+        "remarks": "Attorney dealing"
+      },
+      {
+        "timestamp": "1/3/2026 22:27:53",
+        "phone": "3256273257",
+        "accident_year": "2025",
+        "state": "TX",
+        "zip": "",
+        "fronter": "Laiba Latif (8021)",
+        "closer": "Sami",
+        "remarks": "Cx said everyone got the ticket"
+      },
+      {
+        "timestamp": "1/3/2026 23:31:35",
+        "phone": "2054221673",
+        "accident_year": "2024",
+        "state": "AL",
+        "zip": "",
+        "fronter": "Laiba Latif (8021)",
+        "closer": "Gulfaraz",
+        "remarks": "acc 2023"
+      },
+      {
+        "timestamp": "1/3/2026 23:46:43",
+        "phone": "3095073396",
+        "accident_year": "2025",
+        "state": "NV",
+        "zip": "",
+        "fronter": "Laiba Latif (8021)",
+        "closer": "Gulfaraz",
+        "remarks": "DNC"
+      },
+      {
+        "timestamp": "1/4/2026 1:19:49",
+        "phone": "4692458605",
+        "accident_year": "2024",
+        "state": "TX",
+        "zip": "",
+        "fronter": "Laiba Latif (8021)",
+        "closer": "Zainab",
+        "remarks": "Already claimed"
+      }
+    ]
+  },
+
+  "output_expectations": [
+    "Clean scalable code",
+    "Reusable components",
+    "Well commented",
+    "Production ready",
+    "Secure",
+    "Modern UI"
+  ]
+}
