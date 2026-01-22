@@ -30,7 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useState } from "react";
+import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { 
   Table, 
@@ -67,40 +67,42 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h2 className="text-3xl font-display font-bold tracking-tight">
-            {isAdmin ? "Admin Dashboard" : "Agent Performance"}
-          </h2>
-          <p className="text-muted-foreground mt-1">
-            {isAdmin ? "Overview of call center operations" : "Track your personal progress"}
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Select value={location} onValueChange={setLocation}>
-            <SelectTrigger className="w-[120px] bg-white">
-              <SelectValue placeholder="Location" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Locations</SelectItem>
-              <SelectItem value="onsite">On-site</SelectItem>
-              <SelectItem value="wfh">WFH</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={days.toString()} onValueChange={(v) => setDays(parseInt(v))}>
-            <SelectTrigger className="w-[120px] bg-white">
-              <SelectValue placeholder="Timeframe" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="0">Today</SelectItem>
-              <SelectItem value="7">Last 7 Days</SelectItem>
-              <SelectItem value="30">Last 30 Days</SelectItem>
-            </SelectContent>
-          </Select>
+      <div className="sticky top-0 z-[100] bg-white/80 backdrop-blur-md -mx-6 px-6 py-4 border-b md:relative md:bg-transparent md:backdrop-blur-none md:border-none md:mx-0 md:px-0 md:py-0">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h2 className="text-3xl font-display font-bold tracking-tight">
+              {isAdmin ? "Admin Dashboard" : "Agent Performance"}
+            </h2>
+            <p className="text-muted-foreground mt-1">
+              {isAdmin ? "Overview of call center operations" : "Track your personal progress"}
+            </p>
+          </div>
+          <div className="flex gap-2 w-full sm:w-auto">
+            <Select value={location} onValueChange={setLocation}>
+              <SelectTrigger className="flex-1 sm:w-[120px] bg-white">
+                <SelectValue placeholder="Location" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Locations</SelectItem>
+                <SelectItem value="onsite">On-site</SelectItem>
+                <SelectItem value="wfh">WFH</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={days.toString()} onValueChange={(v) => setDays(parseInt(v))}>
+              <SelectTrigger className="flex-1 sm:w-[120px] bg-white">
+                <SelectValue placeholder="Timeframe" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="0">Today</SelectItem>
+                <SelectItem value="7">Last 7 Days</SelectItem>
+                <SelectItem value="30">Last 30 Days</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
-      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
         <KPICard 
           title={isAdmin ? "Total Agents" : "Total Calls"} 
           value={isAdmin ? kpis.totalAgents : kpis.totalCalls} 
@@ -304,7 +306,7 @@ function DashboardSkeleton() {
         <Skeleton className="h-10 w-48" />
         <Skeleton className="h-4 w-64" />
       </div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
         {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-32 rounded-2xl" />)}
       </div>
       <div className="grid gap-4 lg:grid-cols-7">

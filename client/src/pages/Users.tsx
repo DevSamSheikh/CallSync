@@ -1,4 +1,15 @@
-import { useUsers, useCreateUser, useDeleteUser } from "@/hooks/use-users";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useReports } from "@/hooks/use-reports";
 import { useAuth } from "@/hooks/use-auth";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -36,7 +47,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { UserPlus, Shield, User as UserIcon, Search, Loader2, MoreVertical, Edit2, Trash2 } from "lucide-react";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Check, ChevronsUpDown, UserPlus, Shield, User as UserIcon, Search, Loader2, MoreVertical, Edit2, Trash2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -49,6 +73,7 @@ import {
 export default function Users() {
   const { user: currentUser } = useAuth();
   const { data: users, isLoading } = useUsers();
+  const { data: reports } = useReports();
   const createUser = useCreateUser();
   const deleteUser = useDeleteUser();
   const [open, setOpen] = useState(false);
@@ -155,20 +180,79 @@ export default function Users() {
                   control={form.control}
                   name="role"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col">
                       <FormLabel>Role</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a role" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="agent">Agent</SelectItem>
-                          <SelectItem value="deo">Data Entry Operator</SelectItem>
-                          <SelectItem value="admin">Admin</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              className={cn(
+                                "w-full justify-between",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              {field.value
+                                ? ["agent", "deo", "admin"].find(
+                                    (role) => role === field.value
+                                  )?.toUpperCase()
+                                : "Select a role"}
+                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-full p-0">
+                          <Command>
+                            <CommandInput placeholder="Search role..." />
+                            <CommandEmpty>No role found.</CommandEmpty>
+                            <CommandGroup>
+                              <CommandItem
+                                value="agent"
+                                onSelect={() => {
+                                  form.setValue("role", "agent");
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    field.value === "agent" ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                Agent
+                              </CommandItem>
+                              <CommandItem
+                                value="deo"
+                                onSelect={() => {
+                                  form.setValue("role", "deo");
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    field.value === "deo" ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                Data Entry Operator
+                              </CommandItem>
+                              <CommandItem
+                                value="admin"
+                                onSelect={() => {
+                                  form.setValue("role", "admin");
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    field.value === "admin" ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                Admin
+                              </CommandItem>
+                            </CommandGroup>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -177,19 +261,61 @@ export default function Users() {
                   control={form.control}
                   name="location"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col">
                       <FormLabel>Location</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select location" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="onsite">On-site</SelectItem>
-                          <SelectItem value="wfh">WFH</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              className={cn(
+                                "w-full justify-between",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              {field.value === "onsite" ? "On-site" : field.value === "wfh" ? "WFH" : "Select location"}
+                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-full p-0">
+                          <Command>
+                            <CommandInput placeholder="Search location..." />
+                            <CommandEmpty>No location found.</CommandEmpty>
+                            <CommandGroup>
+                              <CommandItem
+                                value="onsite"
+                                onSelect={() => {
+                                  form.setValue("location", "onsite");
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    field.value === "onsite" ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                On-site
+                              </CommandItem>
+                              <CommandItem
+                                value="wfh"
+                                onSelect={() => {
+                                  form.setValue("location", "wfh");
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    field.value === "wfh" ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                WFH
+                              </CommandItem>
+                            </CommandGroup>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -238,6 +364,7 @@ export default function Users() {
                   <TableHead>Username</TableHead>
                   <TableHead>Role</TableHead>
                   <TableHead>Location</TableHead>
+                  <TableHead>Data Entered</TableHead>
                   <TableHead>Last IP</TableHead>
                   <TableHead>ID</TableHead>
                   <TableHead className="text-right pr-6">Actions</TableHead>
@@ -288,6 +415,9 @@ export default function Users() {
                           {user.location}
                         </Badge>
                       </TableCell>
+                      <TableCell className="text-sm">
+                        {reports?.filter(r => r.agentId === user.id).length || 0}
+                      </TableCell>
                       <TableCell className="text-muted-foreground font-mono text-xs">
                         {user.lastIp || "N/A"}
                       </TableCell>
@@ -306,13 +436,34 @@ export default function Users() {
                               <Edit2 className="h-3.5 w-3.5" />
                               Edit
                             </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              className="gap-2 text-destructive focus:text-destructive"
-                              onClick={() => deleteUser.mutate(user.id)}
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                              Delete
-                            </DropdownMenuItem>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <DropdownMenuItem 
+                                  className="gap-2 text-destructive focus:text-destructive"
+                                  onSelect={(e) => e.preventDefault()}
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                  Delete
+                                </DropdownMenuItem>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    This action cannot be undone. This will permanently delete the user account.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction 
+                                    onClick={() => deleteUser.mutate(user.id)}
+                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                  >
+                                    Delete
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>

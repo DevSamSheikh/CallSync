@@ -1,4 +1,14 @@
-import { useReports, useDeleteReport } from "@/hooks/use-reports";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { format } from "date-fns";
 import { 
   Table, 
@@ -48,7 +58,7 @@ export default function Reports() {
   const [selectedState, setSelectedState] = useState("all");
   const [location, setLocation] = useState<string>("all");
 
-  const isAdminOrDeo = user?.role === "admin" || user?.role === "deo";
+  const isAdmin = user?.role === "admin";
 
   const handleExport = () => {
     if (!reports) return;
@@ -187,12 +197,13 @@ export default function Reports() {
                 <TableRow>
                   <TableHead className="pl-6">Timestamp</TableHead>
                   <TableHead>Phone No</TableHead>
+                  {isAdmin && <TableHead>Fronter</TableHead>}
                   <TableHead>Accident Year</TableHead>
                   <TableHead>State</TableHead>
                   <TableHead>Location</TableHead>
                   <TableHead>Closer</TableHead>
                   <TableHead>Remarks</TableHead>
-                  {isAdminOrDeo && <TableHead className="pr-6 text-right">Actions</TableHead>}
+                  {(isAdmin || user?.role === "deo") && <TableHead className="pr-6 text-right">Actions</TableHead>}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -218,6 +229,7 @@ export default function Reports() {
                         {report.timestamp ? format(new Date(report.timestamp), "MMM dd, HH:mm:ss") : "-"}
                       </TableCell>
                       <TableCell className="font-medium">{report.phoneNo}</TableCell>
+                      {isAdmin && <TableCell>{report.fronterName}</TableCell>}
                       <TableCell>{report.accidentYear}</TableCell>
                       <TableCell>{report.state}</TableCell>
                       <TableCell>
@@ -233,7 +245,7 @@ export default function Reports() {
                       <TableCell className="max-w-[300px] truncate" title={report.remarks || ""}>
                         {report.remarks}
                       </TableCell>
-                      {isAdminOrDeo && (
+                      {(isAdmin || user?.role === "deo") && (
                         <TableCell className="pr-6 text-right">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -246,13 +258,34 @@ export default function Reports() {
                                 <Edit2 className="h-3.5 w-3.5" />
                                 Edit
                               </DropdownMenuItem>
-                              <DropdownMenuItem 
-                                className="gap-2 text-destructive focus:text-destructive"
-                                onClick={() => deleteReport.mutate(report.id)}
-                              >
-                                <Trash2 className="h-3.5 w-3.5" />
-                                Delete
-                              </DropdownMenuItem>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <DropdownMenuItem 
+                      className="gap-2 text-destructive focus:text-destructive"
+                      onSelect={(e) => e.preventDefault()}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                      Delete
+                    </DropdownMenuItem>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently delete the report.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction 
+                        onClick={() => deleteReport.mutate(report.id)}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      >
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>
