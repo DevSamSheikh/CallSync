@@ -9,6 +9,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useReports, useDeleteReport } from "@/hooks/use-reports";
 import { format } from "date-fns";
 import { 
   Table, 
@@ -88,9 +89,9 @@ export default function Reports() {
     document.body.removeChild(link);
   };
 
-  const states = Array.from(new Set(reports?.map(r => r.state).filter(Boolean))) as string[];
+  const states = Array.from(new Set(reports?.map((r: any) => r.state).filter(Boolean))) as string[];
 
-  const filteredReports = reports?.filter(r => {
+  const filteredReports = reports?.filter((r: any) => {
     const matchesSearch = 
       r.phoneNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
       r.closerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -98,7 +99,7 @@ export default function Reports() {
     
     const matchesDate = !date || (r.timestamp && format(new Date(r.timestamp), "yyyy-MM-dd") === format(date, "yyyy-MM-dd"));
     const matchesState = selectedState === "all" || r.state === selectedState;
-    const matchesLocation = location === "all" || r.location === location;
+    const matchesLocation = location === "all" || (r as any).location === location;
     
     return matchesSearch && matchesDate && matchesState && matchesLocation;
   });

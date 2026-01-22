@@ -9,6 +9,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useUsers, useCreateUser, useDeleteUser } from "@/hooks/use-users";
 import { useReports } from "@/hooks/use-reports";
 import { useAuth } from "@/hooks/use-auth";
 import { useForm } from "react-hook-form";
@@ -108,7 +109,7 @@ export default function Users() {
     });
   };
 
-  const filteredUsers = users?.filter(u => {
+  const filteredUsers = users?.filter((u: any) => {
     const matchesSearch = 
       u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       u.username.toLowerCase().includes(searchTerm.toLowerCase());
@@ -387,7 +388,7 @@ export default function Users() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredUsers?.map((user) => (
+                  filteredUsers?.map((user: any) => (
                     <TableRow key={user.id} className="hover:bg-muted/30 transition-colors">
                       <TableCell className="pl-6 font-medium">
                         <div className="flex items-center gap-3">
