@@ -28,7 +28,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useAuth } from "@/hooks/use-auth";
+import { KPICard } from "@/components/KPICard";
+import { Users as UsersIcon } from "lucide-react";
 
 export default function Reports() {
   const { user } = useAuth();
@@ -37,6 +46,7 @@ export default function Reports() {
   const [searchTerm, setSearchTerm] = useState("");
   const [date, setDate] = useState<Date>();
   const [selectedState, setSelectedState] = useState("all");
+  const [location, setLocation] = useState<string>("all");
 
   const isAdminOrDeo = user?.role === "admin" || user?.role === "deo";
 
@@ -44,7 +54,7 @@ export default function Reports() {
     if (!reports) return;
     
     // Simple CSV export logic
-    const headers = ["Timestamp", "Phone No", "Accident Year", "State", "Closer", "Remarks"];
+    const headers = ["Timestamp", "Phone No", "Accident Year", "State", "Closer", "Remarks", "Location"];
     const csvContent = [
       headers.join(","),
       ...reports.map(r => [
@@ -53,7 +63,8 @@ export default function Reports() {
         r.accidentYear || "",
         r.state || "",
         r.closerName || "",
-        `"${r.remarks || ""}"` // Escape quotes for remarks
+        `"${r.remarks || ""}"`, // Escape quotes for remarks
+        r.location
       ].join(","))
     ].join("\n");
 
@@ -77,8 +88,9 @@ export default function Reports() {
     
     const matchesDate = !date || (r.timestamp && format(new Date(r.timestamp), "yyyy-MM-dd") === format(date, "yyyy-MM-dd"));
     const matchesState = selectedState === "all" || r.state === selectedState;
+    const matchesLocation = location === "all" || r.location === location;
     
-    return matchesSearch && matchesDate && matchesState;
+    return matchesSearch && matchesDate && matchesState && matchesLocation;
   });
 
   return (
@@ -105,6 +117,17 @@ export default function Reports() {
           />
         </div>
         <div className="flex flex-col sm:flex-row gap-4">
+          <Select value={location} onValueChange={setLocation}>
+            <SelectTrigger className="w-full sm:w-[150px] bg-white">
+              <SelectValue placeholder="Location" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Locations</SelectItem>
+              <SelectItem value="onsite">On-site</SelectItem>
+              <SelectItem value="wfh">WFH</SelectItem>
+            </SelectContent>
+          </Select>
+
           <Popover>
             <PopoverTrigger asChild>
               <Button
@@ -140,11 +163,12 @@ export default function Reports() {
             </SelectContent>
           </Select>
 
-          {(date || selectedState !== "all" || searchTerm) && (
+          {(date || selectedState !== "all" || searchTerm || location !== "all") && (
             <Button variant="ghost" onClick={() => {
               setDate(undefined);
               setSelectedState("all");
               setSearchTerm("");
+              setLocation("all");
             }}>
               Clear Filters
             </Button>
@@ -165,6 +189,7 @@ export default function Reports() {
                   <TableHead>Phone No</TableHead>
                   <TableHead>Accident Year</TableHead>
                   <TableHead>State</TableHead>
+                  <TableHead>Location</TableHead>
                   <TableHead>Closer</TableHead>
                   <TableHead>Remarks</TableHead>
                   {isAdminOrDeo && <TableHead className="pr-6 text-right">Actions</TableHead>}
@@ -173,7 +198,7 @@ export default function Reports() {
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="h-24 text-center">
+                    <TableCell colSpan={8} className="h-24 text-center">
                       <div className="flex justify-center items-center gap-2 text-muted-foreground">
                         <Loader2 className="w-4 h-4 animate-spin" />
                         Loading reports...
@@ -182,7 +207,7 @@ export default function Reports() {
                   </TableRow>
                 ) : filteredReports?.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                    <TableCell colSpan={8} className="h-24 text-center text-muted-foreground">
                       No reports found.
                     </TableCell>
                   </TableRow>
@@ -196,11 +221,16 @@ export default function Reports() {
                       <TableCell>{report.accidentYear}</TableCell>
                       <TableCell>{report.state}</TableCell>
                       <TableCell>
+                        <Badge variant="outline" className="capitalize">
+                          {report.location}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
                         <Badge variant="outline" className="font-normal bg-pink-50 text-pink-700 border-pink-200">
                           {report.closerName}
                         </Badge>
                       </TableCell>
-                      <TableCell className="pr-6 max-w-[300px] truncate" title={report.remarks || ""}>
+                      <TableCell className="max-w-[300px] truncate" title={report.remarks || ""}>
                         {report.remarks}
                       </TableCell>
                       {isAdminOrDeo && (

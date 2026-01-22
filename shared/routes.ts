@@ -127,11 +127,22 @@ export const api = {
     dashboard: {
       method: 'GET' as const,
       path: '/api/analytics/dashboard',
+      input: z.object({
+        days: z.coerce.number().optional(),
+        location: z.string().optional(),
+      }).optional(),
       responses: {
         200: z.object({
           dailyStats: z.array(dailyStatSchema),
           agentPerformance: z.array(agentPerformanceSchema),
-          kpis: kpiSchema,
+          performerComparison: z.array(z.object({
+            name: z.string(),
+            transfers: z.number(),
+            sales: z.number(),
+          })),
+          kpis: kpiSchema.extend({
+            totalAgents: z.number(),
+          }),
         }),
       },
     },

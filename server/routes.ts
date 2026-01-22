@@ -7,6 +7,14 @@ import { z } from "zod";
 import { insertReportSchema } from "@shared/schema";
 import passport from "passport";
 
+import type { User as DbUser } from "@shared/schema";
+
+declare global {
+  namespace Express {
+    interface User extends DbUser {}
+  }
+}
+
 export async function registerRoutes(
   httpServer: Server,
   app: Express
@@ -87,8 +95,6 @@ export async function registerRoutes(
     
     try {
       const input = api.reports.create.input.parse(req.body);
-      // Link report to the logged-in user if they are an agent, or if DEO/Admin enters it?
-      // For now, let's link it to the creator.
       const reportData = { ...input, agentId: req.user!.id };
       const report = await storage.createReport(reportData);
       res.status(201).json(report);
@@ -130,7 +136,11 @@ export async function registerRoutes(
   app.get(api.analytics.dashboard.path, async (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
     
-    const stats = await storage.getAnalytics();
+    const filters: any = {};
+    if (req.query.location) filters.location = req.query.location as string;
+    if (req.query.days) filters.days = parseInt(req.query.days as string);
+
+    const stats = await storage.getAnalytics(filters);
     res.json(stats);
   });
 
@@ -182,7 +192,8 @@ export async function seed() {
         fronterName: "Hassam Sheikh (8004)",
         closerName: "Zainab",
         remarks: "sounding fishy and hungup when i asked about info",
-        agentId: demoAgent.id
+        agentId: demoAgent.id,
+        location: "onsite" as const
       },
       {
         timestamp: new Date("2026-01-03 21:29:53"),
@@ -193,7 +204,8 @@ export async function seed() {
         fronterName: "Hassam Sheikh (8004)",
         closerName: "Gulfaraz",
         remarks: "Attorney dealing",
-        agentId: demoAgent.id
+        agentId: demoAgent.id,
+        location: "onsite" as const
       },
       {
         timestamp: new Date("2026-01-03 22:27:53"),
@@ -204,7 +216,8 @@ export async function seed() {
         fronterName: "Hassam Sheikh (8004)",
         closerName: "Sami",
         remarks: "Cx said everyone got the ticket",
-        agentId: demoAgent.id
+        agentId: demoAgent.id,
+        location: "wfh" as const
       },
       {
         timestamp: new Date("2026-01-03 23:31:35"),
@@ -215,7 +228,8 @@ export async function seed() {
         fronterName: "Hassam Sheikh (8004)",
         closerName: "Gulfaraz",
         remarks: "acc 2023",
-        agentId: demoAgent.id
+        agentId: demoAgent.id,
+        location: "onsite" as const
       },
       {
         timestamp: new Date("2026-01-03 23:46:43"),
@@ -226,7 +240,8 @@ export async function seed() {
         fronterName: "Hassam Sheikh (8004)",
         closerName: "Gulfaraz",
         remarks: "DNC",
-        agentId: demoAgent.id
+        agentId: demoAgent.id,
+        location: "wfh" as const
       },
       {
         timestamp: new Date("2026-01-04 01:19:49"),
@@ -237,7 +252,8 @@ export async function seed() {
         fronterName: "Hassam Sheikh (8004)",
         closerName: "Zainab",
         remarks: "Already claimed",
-        agentId: demoAgent.id
+        agentId: demoAgent.id,
+        location: "onsite" as const
       },
       {
         timestamp: new Date("2026-01-05 10:15:00"),
@@ -248,7 +264,8 @@ export async function seed() {
         fronterName: "Hassam Sheikh (8004)",
         closerName: "Sami",
         remarks: "Interested in sale",
-        agentId: demoAgent.id
+        agentId: demoAgent.id,
+        location: "wfh" as const
       },
       {
         timestamp: new Date("2026-01-06 14:30:00"),
@@ -259,7 +276,8 @@ export async function seed() {
         fronterName: "Agent Smith",
         closerName: "Gulfaraz",
         remarks: "Successful Transfer",
-        agentId: demoAgent.id
+        agentId: demoAgent.id,
+        location: "onsite" as const
       }
     ];
 

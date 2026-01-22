@@ -45,8 +45,10 @@ const COLORS = ['#189bfe', '#f51288', '#00C49F', '#FFBB28'];
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const { data, isLoading } = useAnalytics();
-  const [view, setView] = useState<"weekly" | "monthly">("monthly");
+  const [days, setDays] = useState<number>(30);
+  const [location, setLocation] = useState<string>("all");
+  
+  const { data, isLoading } = useAnalytics({ days, location });
 
   if (isLoading) {
     return <DashboardSkeleton />;
@@ -54,12 +56,7 @@ export default function Dashboard() {
 
   if (!data) return null;
 
-  const { kpis, dailyStats, agentPerformance } = data;
-
-  // Filter daily stats based on view
-  const filteredDailyStats = view === "weekly" 
-    ? dailyStats.slice(-7) 
-    : dailyStats;
+  const { kpis, dailyStats, agentPerformance, performerComparison } = data;
 
   const pieData = [
     { name: 'Transfers', value: kpis.totalTransfers },
@@ -78,6 +75,28 @@ export default function Dashboard() {
           <p className="text-muted-foreground mt-1">
             {isAdmin ? "Overview of call center operations" : "Track your personal progress"}
           </p>
+        </div>
+        <div className="flex gap-2">
+          <Select value={location} onValueChange={setLocation}>
+            <SelectTrigger className="w-[120px] bg-white">
+              <SelectValue placeholder="Location" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Locations</SelectItem>
+              <SelectItem value="onsite">On-site</SelectItem>
+              <SelectItem value="wfh">WFH</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={days.toString()} onValueChange={(v) => setDays(parseInt(v))}>
+            <SelectTrigger className="w-[120px] bg-white">
+              <SelectValue placeholder="Timeframe" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="0">Today</SelectItem>
+              <SelectItem value="7">Last 7 Days</SelectItem>
+              <SelectItem value="30">Last 30 Days</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
@@ -117,20 +136,11 @@ export default function Dashboard() {
         <Card className="lg:col-span-4 shadow-md border-none overflow-hidden">
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <CardTitle>Daily Performance</CardTitle>
-            <Select value={view} onValueChange={(v: any) => setView(v)}>
-              <SelectTrigger className="w-[120px]">
-                <SelectValue placeholder="Select view" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="weekly">Weekly</SelectItem>
-                <SelectItem value="monthly">Monthly</SelectItem>
-              </SelectContent>
-            </Select>
           </CardHeader>
           <CardContent className="pt-4">
             <div className="h-[350px] -ml-4">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={filteredDailyStats} margin={{ left: 0, right: 20 }}>
+                <LineChart data={dailyStats} margin={{ left: 0, right: 20 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
                   <XAxis 
                     dataKey="date" 
@@ -240,14 +250,14 @@ export default function Dashboard() {
           {/* Performance Bar Chart */}
           <Card className="shadow-md border-none overflow-hidden">
             <CardHeader>
-              <CardTitle>Agent Comparison</CardTitle>
+              <CardTitle>Performers comparison (Onsite vs WFH)</CardTitle>
             </CardHeader>
             <CardContent className="pt-4">
               <div className="h-[300px] -ml-4">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={agentPerformance.slice(0, 5)} margin={{ left: 0, right: 20 }}>
+                  <BarChart data={performerComparison} margin={{ left: 0, right: 20 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-                    <XAxis dataKey="agentName" stroke="#888888" fontSize={10} tickLine={false} axisLine={false} />
+                    <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
                     <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
                     <Tooltip 
                     cursor={{fill: 'transparent'}} 

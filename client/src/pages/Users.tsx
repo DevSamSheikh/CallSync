@@ -70,6 +70,7 @@ export default function Users() {
       password: "",
       name: "",
       role: "agent",
+      location: "onsite",
     },
   });
 
@@ -172,6 +173,27 @@ export default function Users() {
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={form.control}
+                  name="location"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Location</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select location" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="onsite">On-site</SelectItem>
+                          <SelectItem value="wfh">WFH</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <div className="flex justify-end pt-4">
                   <Button type="submit" disabled={createUser.isPending}>
                     {createUser.isPending ? "Creating..." : "Create User"}
@@ -215,6 +237,7 @@ export default function Users() {
                   <TableHead className="pl-6">Name</TableHead>
                   <TableHead>Username</TableHead>
                   <TableHead>Role</TableHead>
+                  <TableHead>Location</TableHead>
                   <TableHead>Last IP</TableHead>
                   <TableHead>ID</TableHead>
                   <TableHead className="text-right pr-6">Actions</TableHead>
@@ -258,6 +281,11 @@ export default function Users() {
                           }
                         >
                           {user.role}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="capitalize">
+                          {user.location}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-muted-foreground font-mono text-xs">

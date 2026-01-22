@@ -17,10 +17,11 @@ export interface IStorage {
   deleteUser(id: number): Promise<void>;
   
   // Analytics
-  getAnalytics(): Promise<{
+  getAnalytics(filters?: { location?: string; days?: number }): Promise<{
     dailyStats: { date: string; transfers: number; sales: number }[];
     agentPerformance: { agentName: string; transfers: number; sales: number }[];
-    kpis: { totalCalls: number; totalTransfers: number; totalSales: number; conversionRate: string };
+    performerComparison: { name: string; transfers: number; sales: number }[];
+    kpis: { totalCalls: number; totalAgents: number; totalTransfers: number; totalSales: number; conversionRate: string };
   }>;
 }
 
@@ -59,7 +60,7 @@ export class DatabaseStorage implements IStorage {
     return await db.insert(reports).values(reportsData).returning();
   }
 
-  async getReports(filters?: { startDate?: Date; endDate?: Date; agentId?: number }): Promise<Report[]> {
+  async getReports(filters?: { startDate?: Date; endDate?: Date; agentId?: number; location?: string }): Promise<Report[]> {
     let conditions = [];
     
     if (filters?.startDate) {
@@ -70,6 +71,9 @@ export class DatabaseStorage implements IStorage {
     }
     if (filters?.agentId) {
       conditions.push(eq(reports.agentId, filters.agentId));
+    }
+    if (filters?.location && filters.location !== 'all') {
+      conditions.push(eq(reports.location, filters.location as any));
     }
 
     return await db.select()
@@ -86,8 +90,26 @@ export class DatabaseStorage implements IStorage {
     await db.delete(users).where(eq(users.id, id));
   }
 
-  async getAnalytics() {
-    const allReports = await db.select().from(reports);
+  async getAnalytics(filters?: { location?: string; days?: number }) {
+    let reportConditions = [];
+    if (filters?.location && filters.location !== 'all') {
+      reportConditions.push(eq(reports.location, filters.location as any));
+    }
+    
+    const cutoffDate = new Date();
+    if (filters?.days && filters.days > 0) {
+      cutoffDate.setDate(cutoffDate.getDate() - filters.days);
+      reportConditions.push(gte(reports.timestamp, cutoffDate));
+    } else if (filters?.days === 0) {
+      // Today
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+      reportConditions.push(gte(reports.timestamp, todayStart));
+    }
+
+    const allReports = await db.select().from(reports)
+      .where(reportConditions.length > 0 ? and(...reportConditions) : undefined);
+    
     const allUsers = await db.select().from(users);
 
     // KPI Calc
@@ -96,7 +118,7 @@ export class DatabaseStorage implements IStorage {
     const totalTransfers = allReports.filter(r => r.closerName).length;
     const totalSales = allReports.filter(r => r.remarks?.toLowerCase().includes('sale')).length;
 
-    // Daily Stats (for the last 30 days)
+    // Daily Stats
     const dailyMap = new Map<string, { transfers: number; sales: number }>();
     allReports.forEach(r => {
       if (!r.timestamp) return;
@@ -107,7 +129,6 @@ export class DatabaseStorage implements IStorage {
       dailyMap.set(date, stats);
     });
     
-    // Ensure we have at least some data for the charts even if database is empty
     const dailyStats = Array.from(dailyMap.entries()).map(([date, stats]) => ({
       date,
       ...stats
@@ -127,9 +148,24 @@ export class DatabaseStorage implements IStorage {
       ...stats
     })).sort((a, b) => b.transfers - a.transfers);
 
+    // Performer Comparison (Onsite vs WFH)
+    const onsiteStats = { name: 'Onsite', transfers: 0, sales: 0 };
+    const wfhStats = { name: 'WFH', transfers: 0, sales: 0 };
+    
+    allReports.forEach(r => {
+      if (r.location === 'onsite') {
+        if (r.closerName) onsiteStats.transfers++;
+        if (r.remarks?.toLowerCase().includes('sale')) onsiteStats.sales++;
+      } else {
+        if (r.closerName) wfhStats.transfers++;
+        if (r.remarks?.toLowerCase().includes('sale')) wfhStats.sales++;
+      }
+    });
+
     return {
       dailyStats,
       agentPerformance,
+      performerComparison: [onsiteStats, wfhStats],
       kpis: {
         totalCalls,
         totalAgents,
