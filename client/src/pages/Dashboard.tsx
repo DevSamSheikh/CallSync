@@ -138,46 +138,50 @@ export default function Dashboard() {
             <CardTitle>Daily Performance</CardTitle>
           </CardHeader>
           <CardContent className="pt-4">
-            <div className="h-[350px] -ml-4">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={dailyStats} margin={{ left: 0, right: 20 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-                  <XAxis 
-                    dataKey="date" 
-                    stroke="#888888" 
-                    fontSize={12} 
-                    tickLine={false} 
-                    axisLine={false} 
-                    tickFormatter={(value) => new Date(value).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                  />
-                  <YAxis 
-                    stroke="#888888" 
-                    fontSize={12} 
-                    tickLine={false} 
-                    axisLine={false}
-                  />
-                  <Tooltip 
-                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-                  />
-                  <Legend />
-                  <Line 
-                    type="monotone" 
-                    dataKey="transfers" 
-                    stroke="#189bfe" 
-                    strokeWidth={3} 
-                    dot={{ fill: '#189bfe', r: 4 }}
-                    activeDot={{ r: 6, strokeWidth: 0 }}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="sales" 
-                    stroke="#f51288" 
-                    strokeWidth={3}
-                    dot={{ fill: '#f51288', r: 4 }}
-                    activeDot={{ r: 6, strokeWidth: 0 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+            <div className="h-[350px] -ml-4 flex items-center justify-center">
+              {dailyStats.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={dailyStats} margin={{ left: 0, right: 20 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                    <XAxis 
+                      dataKey="date" 
+                      stroke="#888888" 
+                      fontSize={12} 
+                      tickLine={false} 
+                      axisLine={false} 
+                      tickFormatter={(value) => new Date(value).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                    />
+                    <YAxis 
+                      stroke="#888888" 
+                      fontSize={12} 
+                      tickLine={false} 
+                      axisLine={false}
+                    />
+                    <Tooltip 
+                      contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                    />
+                    <Legend />
+                    <Line 
+                      type="monotone" 
+                      dataKey="transfers" 
+                      stroke="#189bfe" 
+                      strokeWidth={3} 
+                      dot={{ fill: '#189bfe', r: 4 }}
+                      activeDot={{ r: 6, strokeWidth: 0 }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="sales" 
+                      stroke="#f51288" 
+                      strokeWidth={3}
+                      dot={{ fill: '#f51288', r: 4 }}
+                      activeDot={{ r: 6, strokeWidth: 0 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              ) : (
+                <p className="text-muted-foreground text-sm">No data available for the selected filters</p>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -188,31 +192,35 @@ export default function Dashboard() {
             <CardTitle>Transfer vs Sale Ratio</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-[350px]">
-              <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={pieData}
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={110}
-                      fill="#8884d8"
-                      dataKey="value"
-                      label={false}
-                      isAnimationActive={false}
-                      stroke="none"
-                    >
-                      {pieData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip 
-                      contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-                      cursor={false}
-                    />
-                    <Legend verticalAlign="bottom" height={36}/>
-                  </PieChart>
-              </ResponsiveContainer>
+            <div className="h-[350px] flex items-center justify-center">
+              {kpis.totalTransfers > 0 || kpis.totalSales > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={pieData}
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={110}
+                        fill="#8884d8"
+                        dataKey="value"
+                        label={false}
+                        isAnimationActive={false}
+                        stroke="none"
+                      >
+                        {pieData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip 
+                        contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                        cursor={false}
+                      />
+                      <Legend verticalAlign="bottom" height={36}/>
+                    </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <p className="text-muted-foreground text-sm">No data available for the selected filters</p>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -235,13 +243,21 @@ export default function Dashboard() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {agentPerformance.slice(0, 5).map((agent, i) => (
-                    <TableRow key={i}>
-                      <TableCell className="pl-6 font-medium">{agent.agentName}</TableCell>
-                      <TableCell>{agent.transfers}</TableCell>
-                      <TableCell className="text-right pr-6">{agent.sales}</TableCell>
+                  {agentPerformance.length > 0 ? (
+                    agentPerformance.slice(0, 5).map((agent, i) => (
+                      <TableRow key={i}>
+                        <TableCell className="pl-6 font-medium">{agent.agentName}</TableCell>
+                        <TableCell>{agent.transfers}</TableCell>
+                        <TableCell className="text-right pr-6">{agent.sales}</TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={3} className="h-24 text-center text-muted-foreground text-sm">
+                        No data available for the selected filters
+                      </TableCell>
                     </TableRow>
-                  ))}
+                  )}
                 </TableBody>
               </Table>
             </CardContent>
@@ -253,21 +269,25 @@ export default function Dashboard() {
               <CardTitle>Performers comparison (Onsite vs WFH)</CardTitle>
             </CardHeader>
             <CardContent className="pt-4">
-              <div className="h-[300px] -ml-4">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={performerComparison} margin={{ left: 0, right: 20 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-                    <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
-                    <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
-                    <Tooltip 
-                    cursor={{fill: 'transparent'}} 
-                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-                    wrapperStyle={{ outline: 'none' }}
-                  />
-                    <Bar dataKey="transfers" fill="#189bfe" radius={[4, 4, 0, 0]} barSize={20} />
-                    <Bar dataKey="sales" fill="#f51288" radius={[4, 4, 0, 0]} barSize={20} />
-                  </BarChart>
-                </ResponsiveContainer>
+              <div className="h-[300px] -ml-4 flex items-center justify-center">
+                {performerComparison.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={performerComparison} margin={{ left: 0, right: 20 }}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                      <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
+                      <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
+                      <Tooltip 
+                      cursor={{fill: 'transparent'}} 
+                      contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                      wrapperStyle={{ outline: 'none' }}
+                    />
+                      <Bar dataKey="transfers" fill="#189bfe" radius={[4, 4, 0, 0]} barSize={20} />
+                      <Bar dataKey="sales" fill="#f51288" radius={[4, 4, 0, 0]} barSize={20} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <p className="text-muted-foreground text-sm">No data available for the selected filters</p>
+                )}
               </div>
             </CardContent>
           </Card>
