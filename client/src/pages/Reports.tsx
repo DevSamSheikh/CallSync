@@ -60,12 +60,14 @@ export default function Reports() {
   const [location, setLocation] = useState<string>("all");
 
   const isAdmin = user?.role === "admin";
+  const isDeo = user?.role === "deo";
+  const isAdminOrDeo = isAdmin || isDeo;
 
   const handleExport = () => {
     if (!reports) return;
     
     // Simple CSV export logic
-    const headers = ["Timestamp", "Phone No", "Accident Year", "State", "Closer", "Remarks", "Location"];
+    const headers = ["Timestamp", "Phone No", "Accident Year", "State", "Closer", "Remarks", "Location", "Fronter"];
     const csvContent = [
       headers.join(","),
       ...reports.map(r => [
@@ -75,7 +77,8 @@ export default function Reports() {
         r.state || "",
         r.closerName || "",
         `"${r.remarks || ""}"`, // Escape quotes for remarks
-        r.location
+        r.location,
+        r.fronterName || ""
       ].join(","))
     ].join("\n");
 
@@ -198,19 +201,19 @@ export default function Reports() {
                 <TableRow>
                   <TableHead className="pl-6">Timestamp</TableHead>
                   <TableHead>Phone No</TableHead>
-                  {isAdmin && <TableHead>Fronter</TableHead>}
+                  {isAdminOrDeo && <TableHead>Fronter</TableHead>}
                   <TableHead>Accident Year</TableHead>
                   <TableHead>State</TableHead>
                   <TableHead>Location</TableHead>
                   <TableHead>Closer</TableHead>
                   <TableHead>Remarks</TableHead>
-                  {(isAdmin || user?.role === "deo") && <TableHead className="pr-6 text-right">Actions</TableHead>}
+                  {isAdminOrDeo && <TableHead className="pr-6 text-right">Actions</TableHead>}
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="h-24 text-center">
+                    <TableCell colSpan={isAdminOrDeo ? 9 : 7} className="h-24 text-center">
                       <div className="flex justify-center items-center gap-2 text-muted-foreground">
                         <Loader2 className="w-4 h-4 animate-spin" />
                         Loading reports...
@@ -219,7 +222,7 @@ export default function Reports() {
                   </TableRow>
                 ) : filteredReports?.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="h-24 text-center text-muted-foreground">
+                    <TableCell colSpan={isAdminOrDeo ? 9 : 7} className="h-24 text-center text-muted-foreground">
                       No reports found.
                     </TableCell>
                   </TableRow>
@@ -230,7 +233,7 @@ export default function Reports() {
                         {report.timestamp ? format(new Date(report.timestamp), "MMM dd, HH:mm:ss") : "-"}
                       </TableCell>
                       <TableCell className="font-medium">{report.phoneNo}</TableCell>
-                      {isAdmin && <TableCell>{report.fronterName}</TableCell>}
+                      {isAdminOrDeo && <TableCell>{report.fronterName}</TableCell>}
                       <TableCell>{report.accidentYear}</TableCell>
                       <TableCell>{report.state}</TableCell>
                       <TableCell>
@@ -246,7 +249,7 @@ export default function Reports() {
                       <TableCell className="max-w-[300px] truncate" title={report.remarks || ""}>
                         {report.remarks}
                       </TableCell>
-                      {(isAdmin || user?.role === "deo") && (
+                      {isAdminOrDeo && (
                         <TableCell className="pr-6 text-right">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>

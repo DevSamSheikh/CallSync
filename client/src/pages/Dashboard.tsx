@@ -68,7 +68,7 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="sticky top-0 z-[100] bg-white/80 backdrop-blur-md -mx-6 px-6 py-4 border-b md:relative md:bg-transparent md:backdrop-blur-none md:border-none md:mx-0 md:px-0 md:py-0">
+      <div className="sticky top-0 z-[40] bg-white/80 backdrop-blur-md -mx-6 px-6 py-4 border-b md:relative md:bg-transparent md:backdrop-blur-none md:border-none md:mx-0 md:px-0 md:py-0">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h2 className="text-3xl font-display font-bold tracking-tight">
