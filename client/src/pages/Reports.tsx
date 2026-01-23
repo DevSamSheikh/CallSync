@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Download, Loader2, Search, MoreVertical, Edit2, Trash2 } from "lucide-react";
+import { Download, Loader2, Search, MoreVertical, Edit2, Trash2, Printer } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
@@ -64,6 +64,10 @@ export default function Reports() {
   const isAdmin = user?.role === "admin";
   const isDeo = user?.role === "deo";
   const isAdminOrDeo = isAdmin || isDeo;
+
+  const handlePrint = () => {
+    window.print();
+  };
 
   const handleExport = () => {
     if (!reports) return;
@@ -112,6 +116,9 @@ export default function Reports() {
   const paginatedReports = filteredReports?.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize);
   const totalPages = Math.ceil((filteredReports?.length || 0) / pageSize);
 
+  // When printing, we want to show all filtered results, not just the current page
+  const printReports = filteredReports || [];
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -119,13 +126,19 @@ export default function Reports() {
           <h2 className="text-3xl font-display font-bold tracking-tight">Reports</h2>
           <p className="text-muted-foreground mt-1">Detailed log of call activities</p>
         </div>
-        <Button onClick={handleExport} disabled={!reports?.length} className="shadow-lg shadow-primary/25">
-          <Download className="w-4 h-4 mr-2" />
-          Export CSV
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={handlePrint} variant="outline" className="print:hidden">
+            <Printer className="w-4 h-4 mr-2" />
+            Print
+          </Button>
+          <Button onClick={handleExport} disabled={!reports?.length} className="shadow-lg shadow-primary/25 print:hidden">
+            <Download className="w-4 h-4 mr-2" />
+            Export CSV
+          </Button>
+        </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-4">
+      <div className="flex flex-col lg:flex-row gap-4 print:hidden">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input 
@@ -222,86 +235,151 @@ export default function Reports() {
                       </div>
                     </TableCell>
                   </TableRow>
-                ) : filteredReports?.length === 0 ? (
+                ) : (filteredReports?.length || 0) === 0 ? (
                   <TableRow>
                     <TableCell colSpan={isAdminOrDeo ? 9 : 7} className="h-24 text-center text-muted-foreground">
                       No reports found.
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredReports?.map((report) => (
-                    <TableRow key={report.id} className="hover:bg-muted/30 transition-colors">
-                      <TableCell className="pl-6 font-mono text-xs">
-                        {report.timestamp ? format(new Date(report.timestamp), "MMM dd, HH:mm:ss") : "-"}
-                      </TableCell>
-                      <TableCell className="font-medium">{report.phoneNo}</TableCell>
-                      {isAdminOrDeo && <TableCell>{report.fronterName}</TableCell>}
-                      <TableCell>{report.accidentYear}</TableCell>
-                      <TableCell>{report.state}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="capitalize">
-                          {report.location}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="font-normal bg-pink-50 text-pink-700 border-pink-200">
-                          {report.closerName}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="max-w-[300px] truncate" title={report.remarks || ""}>
-                        {report.remarks}
-                      </TableCell>
-                      {isAdminOrDeo && (
-                        <TableCell className="pr-6 text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8">
-                                <MoreVertical className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem className="gap-2">
-                                <Edit2 className="h-3.5 w-3.5" />
-                                Edit
-                              </DropdownMenuItem>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <DropdownMenuItem 
-                      className="gap-2 text-destructive focus:text-destructive"
-                      onSelect={(e) => e.preventDefault()}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                      Delete
-                    </DropdownMenuItem>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This action cannot be undone. This will permanently delete the report.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction 
-                        onClick={() => deleteReport.mutate(report.id)}
-                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                      >
-                        Delete
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                  <>
+                    {/* Screen view - Paginated */}
+                    {paginatedReports?.map((report) => (
+                      <TableRow key={`screen-${report.id}`} className="hover:bg-muted/30 transition-colors print:hidden">
+                        <TableCell className="pl-6 font-mono text-xs">
+                          {report.timestamp ? format(new Date(report.timestamp), "MMM dd, HH:mm:ss") : "-"}
                         </TableCell>
-                      )}
-                    </TableRow>
-                  ))
+                        <TableCell className="font-medium">{report.phoneNo}</TableCell>
+                        {isAdminOrDeo && <TableCell>{report.fronterName}</TableCell>}
+                        <TableCell>{report.accidentYear}</TableCell>
+                        <TableCell>{report.state}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className="capitalize">
+                            {report.location}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className="font-normal bg-pink-50 text-pink-700 border-pink-200">
+                            {report.closerName}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="max-w-[300px] truncate" title={report.remarks || ""}>
+                          {report.remarks}
+                        </TableCell>
+                        {isAdminOrDeo && (
+                          <TableCell className="pr-6 text-right print:hidden">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-8 w-8">
+                                  <MoreVertical className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem className="gap-2">
+                                  <Edit2 className="h-3.5 w-3.5" />
+                                  Edit
+                                </DropdownMenuItem>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <DropdownMenuItem 
+                        className="gap-2 text-destructive focus:text-destructive"
+                        onSelect={(e) => e.preventDefault()}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        Delete
+                      </DropdownMenuItem>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. This will permanently delete the report.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction 
+                          onClick={() => deleteReport.mutate(report.id)}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        )}
+                      </TableRow>
+                    ))}
+                    
+                    {/* Print view - Full List */}
+                    {printReports.map((report) => (
+                      <TableRow key={`print-${report.id}`} className="hidden print:table-row">
+                        <TableCell className="pl-6 font-mono text-xs">
+                          {report.timestamp ? format(new Date(report.timestamp), "MMM dd, HH:mm:ss") : "-"}
+                        </TableCell>
+                        <TableCell className="font-medium">{report.phoneNo}</TableCell>
+                        {isAdminOrDeo && <TableCell>{report.fronterName}</TableCell>}
+                        <TableCell>{report.accidentYear}</TableCell>
+                        <TableCell>{report.state}</TableCell>
+                        <TableCell className="capitalize">{report.location}</TableCell>
+                        <TableCell>{report.closerName}</TableCell>
+                        <TableCell className="max-w-[300px] break-words">
+                          {report.remarks}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </>
                 )}
               </TableBody>
             </Table>
           </div>
+          {filteredReports && filteredReports.length > 0 && (
+            <div className="flex items-center justify-between px-6 py-4 bg-muted/30 border-t print:hidden">
+              <div className="flex items-center gap-4">
+                <p className="text-sm text-muted-foreground">
+                  Showing {pageIndex * pageSize + 1} to {Math.min((pageIndex + 1) * pageSize, filteredReports.length)} of {filteredReports.length} results
+                </p>
+                <Select value={pageSize.toString()} onValueChange={(v) => {
+                  setPageSize(parseInt(v));
+                  setPageIndex(0);
+                }}>
+                  <SelectTrigger className="w-[80px] h-8 text-xs bg-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="10">10</SelectItem>
+                    <SelectItem value="25">25</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                    <SelectItem value="100">100</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setPageIndex(p => Math.max(0, p - 1))}
+                  disabled={pageIndex === 0}
+                >
+                  Previous
+                </Button>
+                <div className="text-sm font-medium">
+                  Page {pageIndex + 1} of {totalPages}
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setPageIndex(p => Math.min(totalPages - 1, p + 1))}
+                  disabled={pageIndex === totalPages - 1}
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
