@@ -72,7 +72,7 @@ export default function Dashboard() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h2 className="text-3xl font-display font-bold tracking-tight">
-              {isAdmin ? "Admin Dashboard" : "Agent Performance"}
+              Welcome, {user?.name}
             </h2>
             <p className="text-muted-foreground mt-1">
               {isAdmin ? "Overview of call center operations" : "Track your personal progress"}

@@ -58,6 +58,8 @@ export default function Reports() {
   const [date, setDate] = useState<Date>();
   const [selectedState, setSelectedState] = useState("all");
   const [location, setLocation] = useState<string>("all");
+  const [pageSize, setPageSize] = useState(10);
+  const [pageIndex, setPageIndex] = useState(0);
 
   const isAdmin = user?.role === "admin";
   const isDeo = user?.role === "deo";
@@ -106,6 +108,9 @@ export default function Reports() {
     
     return matchesSearch && matchesDate && matchesState && matchesLocation;
   });
+
+  const paginatedReports = filteredReports?.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize);
+  const totalPages = Math.ceil((filteredReports?.length || 0) / pageSize);
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -191,11 +196,8 @@ export default function Reports() {
       </div>
 
       <Card className="border-none shadow-md overflow-hidden">
-        <CardHeader>
-          <CardTitle>Activity Log</CardTitle>
-        </CardHeader>
         <CardContent className="p-0">
-          <div className="overflow-x-auto">
+          <div className="overflow-x-visible">
             <Table>
               <TableHeader className="bg-muted/50">
                 <TableRow>
