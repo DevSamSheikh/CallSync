@@ -50,6 +50,13 @@ import { useAuth } from "@/hooks/use-auth";
 import { KPICard } from "@/components/KPICard";
 import { Users as UsersIcon } from "lucide-react";
 
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
 export default function Reports() {
   const { user } = useAuth();
   const { data: reports, isLoading } = useReports();
