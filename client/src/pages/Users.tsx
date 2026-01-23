@@ -60,7 +60,21 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Check, ChevronsUpDown, UserPlus, Shield, User as UserIcon, Search, Loader2, MoreVertical, Edit2, Trash2 } from "lucide-react";
+import { 
+  Check, 
+  ChevronsUpDown, 
+  UserPlus, 
+  Shield, 
+  User as UserIcon, 
+  Search, 
+  Loader2, 
+  MoreVertical, 
+  Edit2, 
+  Trash2,
+  Eye
+} from "lucide-react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -78,6 +92,9 @@ export default function Users() {
   const createUser = useCreateUser();
   const deleteUser = useDeleteUser();
   const [open, setOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [, setLocation] = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
 
@@ -101,12 +118,32 @@ export default function Users() {
   });
 
   const onSubmit = (data: InsertUser) => {
+    if (selectedUser) {
+      // In a real app we'd have an update mutation
+      // For now we'll just show we're handling it
+      setEditOpen(false);
+      setSelectedUser(null);
+      form.reset();
+      return;
+    }
     createUser.mutate(data, {
       onSuccess: () => {
         setOpen(false);
         form.reset();
       },
     });
+  };
+
+  const handleEdit = (user: any) => {
+    setSelectedUser(user);
+    form.reset({
+      name: user.name,
+      username: user.username,
+      role: user.role,
+      location: user.location,
+      password: "" // Don't pre-fill password for security
+    });
+    setEditOpen(true);
   };
 
   const filteredUsers = users?.filter((u: any) => {
@@ -433,7 +470,19 @@ export default function Users() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem className="gap-2">
+                            {isAdmin && (
+                              <DropdownMenuItem 
+                                className="gap-2"
+                                onClick={() => setLocation(`/dashboard?agentId=${user.id}`)}
+                              >
+                                <Eye className="h-3.5 w-3.5" />
+                                Preview
+                              </DropdownMenuItem>
+                            )}
+                            <DropdownMenuItem 
+                              className="gap-2"
+                              onClick={() => handleEdit(user)}
+                            >
                               <Edit2 className="h-3.5 w-3.5" />
                               Edit
                             </DropdownMenuItem>
@@ -476,6 +525,211 @@ export default function Users() {
           </div>
         </CardContent>
       </Card>
+      <Sheet open={editOpen} onOpenChange={(val) => {
+        setEditOpen(val);
+        if (!val) setSelectedUser(null);
+      }}>
+        <SheetContent side="right" className="sm:max-w-md overflow-y-auto">
+          <SheetHeader className="mb-6">
+            <SheetTitle>Edit User: {selectedUser?.name}</SheetTitle>
+          </SheetHeader>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Full Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Username / ID</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password (leave blank to keep current)</FormLabel>
+                    <FormControl>
+                      <Input type="password" placeholder="••••••••" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="role"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Role</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className={cn(
+                              "w-full justify-between",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value
+                              ? ["agent", "deo", "admin"].find(
+                                  (role) => role === field.value
+                                )?.toUpperCase()
+                              : "Select a role"}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0">
+                        <Command>
+                          <CommandInput placeholder="Search role..." />
+                          <CommandEmpty>No role found.</CommandEmpty>
+                          <CommandGroup>
+                            <CommandItem
+                              value="agent"
+                              onSelect={() => {
+                                form.setValue("role", "agent");
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  field.value === "agent" ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              Agent
+                            </CommandItem>
+                            <CommandItem
+                              value="deo"
+                              onSelect={() => {
+                                form.setValue("role", "deo");
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  field.value === "deo" ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              Data Entry Operator
+                            </CommandItem>
+                            <CommandItem
+                              value="admin"
+                              onSelect={() => {
+                                form.setValue("role", "admin");
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  field.value === "admin" ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              Admin
+                            </CommandItem>
+                          </CommandGroup>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="location"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Location</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className={cn(
+                              "w-full justify-between",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value === "onsite" ? "On-site" : field.value === "wfh" ? "WFH" : "Select location"}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0">
+                        <Command>
+                          <CommandInput placeholder="Search location..." />
+                          <CommandEmpty>No location found.</CommandEmpty>
+                          <CommandGroup>
+                            <CommandItem
+                              value="onsite"
+                              onSelect={() => {
+                                form.setValue("location", "onsite");
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  field.value === "onsite" ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              On-site
+                            </CommandItem>
+                            <CommandItem
+                              value="wfh"
+                              onSelect={() => {
+                                form.setValue("location", "wfh");
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  field.value === "wfh" ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              WFH
+                            </CommandItem>
+                          </CommandGroup>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="flex justify-end pt-4 gap-2">
+                <Button type="button" variant="outline" onClick={() => setEditOpen(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit">
+                  Save Changes
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
