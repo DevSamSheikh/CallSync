@@ -16,7 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Upload, FileUp, Search, Loader2 } from "lucide-react";
+import { Upload, FileUp, Search, Loader2, Check, ChevronsUpDown } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -24,8 +24,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { useQuery } from "@tanstack/react-query";
+import type { User } from "@shared/schema";
 import Papa from "papaparse";
-import { useRef, useState } from "react";
+import { useRef, useState, useMemo } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Table, 
@@ -37,16 +53,21 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 export default function DataEntry() {
   const { user } = useAuth();
   const { data: reports, isLoading: isLoadingReports } = useReports();
+  const { data: users } = useQuery<User[]>({ queryKey: ["/api/users"] });
   const createReport = useCreateReport();
   const bulkCreate = useBulkCreateReports();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const [isProcessingFile, setIsProcessingFile] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [open, setOpen] = useState(false);
+
+  const agents = useMemo(() => users?.filter(u => u.role === "agent") || [], [users]);
 
   const form = useForm<InsertReport>({
     resolver: zodResolver(insertReportSchema),
@@ -59,8 +80,13 @@ export default function DataEntry() {
       closerName: "",
       remarks: "",
       location: "onsite",
+      isSale: false,
+      amount: undefined,
+      bonusAmount: undefined,
     },
   });
+
+  const watchIsSale = form.watch("isSale");
 
   const onSubmit = (data: InsertReport) => {
     createReport.mutate(data, {
@@ -74,6 +100,9 @@ export default function DataEntry() {
           closerName: "",
           remarks: "",
           location: "onsite",
+          isSale: false,
+          amount: undefined,
+          bonusAmount: undefined,
         });
       },
     });
@@ -204,11 +233,58 @@ export default function DataEntry() {
                             control={form.control}
                             name="fronterName"
                             render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Fronter Name</FormLabel>
-                                <FormControl>
-                                  <Input {...field} className="bg-white" />
-                                </FormControl>
+                              <FormItem className="flex flex-col">
+                                <FormLabel>User/Agent</FormLabel>
+                                <Popover open={open} onOpenChange={setOpen}>
+                                  <PopoverTrigger asChild>
+                                    <FormControl>
+                                      <Button
+                                        variant="outline"
+                                        role="combobox"
+                                        aria-expanded={open}
+                                        className={cn(
+                                          "justify-between bg-white",
+                                          !field.value && "text-muted-foreground"
+                                        )}
+                                      >
+                                        {field.value
+                                          ? agents.find((agent) => agent.name === field.value)?.name
+                                          : "Select agent..."}
+                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                      </Button>
+                                    </FormControl>
+                                  </PopoverTrigger>
+                                  <PopoverContent className="w-[200px] p-0">
+                                    <Command>
+                                      <CommandInput placeholder="Search agent..." />
+                                      <CommandList>
+                                        <CommandEmpty>No agent found.</CommandEmpty>
+                                        <CommandGroup>
+                                          {agents.map((agent) => (
+                                            <CommandItem
+                                              key={agent.id}
+                                              value={agent.name}
+                                              onSelect={() => {
+                                                form.setValue("fronterName", agent.name);
+                                                setOpen(false);
+                                              }}
+                                            >
+                                              <Check
+                                                className={cn(
+                                                  "mr-2 h-4 w-4",
+                                                  agent.name === field.value
+                                                    ? "opacity-100"
+                                                    : "opacity-0"
+                                                )}
+                                              />
+                                              {agent.name}
+                                            </CommandItem>
+                                          ))}
+                                        </CommandGroup>
+                                      </CommandList>
+                                    </Command>
+                                  </PopoverContent>
+                                </Popover>
                                 <FormMessage />
                               </FormItem>
                             )}
@@ -232,7 +308,7 @@ export default function DataEntry() {
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel>Location</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <Select onValueChange={field.onChange} value={field.value}>
                                   <FormControl>
                                     <SelectTrigger className="bg-white">
                                       <SelectValue placeholder="Select location" />
@@ -247,25 +323,72 @@ export default function DataEntry() {
                               </FormItem>
                             )}
                           />
-                        </div>
-                        <FormField
-                          control={form.control}
-                          name="remarks"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Remarks</FormLabel>
-                              <FormControl>
-                                <Textarea 
-                                  placeholder="Call notes, customer sentiment, etc." 
-                                  className="resize-none h-24 bg-white"
-                                  {...field} 
-                                  value={field.value || ''}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
+                          <FormField
+                            control={form.control}
+                            name="isSale"
+                            render={({ field }) => (
+                              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                                <div className="space-y-0.5">
+                                  <FormLabel>Sale</FormLabel>
+                                </div>
+                                <FormControl>
+                                  <Switch
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />
+                                </FormControl>
+                              </FormItem>
+                            )}
+                          />
+                          {watchIsSale && (
+                            <>
+                              <FormField
+                                control={form.control}
+                                name="amount"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Amount</FormLabel>
+                                    <FormControl>
+                                      <Input type="number" placeholder="0" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} className="bg-white" />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={form.control}
+                                name="bonusAmount"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Bonus Amount</FormLabel>
+                                    <FormControl>
+                                      <Input type="number" placeholder="0" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} className="bg-white" />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </>
                           )}
-                        />
+                        </div>
+                          <FormField
+                            control={form.control}
+                            name="remarks"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Remarks</FormLabel>
+                                <FormControl>
+                                  <Textarea 
+                                    placeholder="Call notes, customer sentiment, etc." 
+                                    className="resize-none h-24 bg-white"
+                                    {...field} 
+                                    value={field.value || ''}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
                         <div className="flex justify-end gap-3">
                           <Button 
                             type="button" 

@@ -115,8 +115,8 @@ export class DatabaseStorage implements IStorage {
     // KPI Calc
     const totalCalls = allReports.length;
     const totalAgents = allUsers.filter(u => u.role === 'agent').length;
-    const totalTransfers = allReports.filter(r => r.closerName).length;
-    const totalSales = allReports.filter(r => r.remarks?.toLowerCase().includes('sale')).length;
+    const totalTransfers = allReports.filter(r => r.closerName && !r.isSale).length;
+    const totalSales = allReports.filter(r => r.isSale).length;
 
     // Daily Stats
     const dailyMap = new Map<string, { transfers: number; sales: number }>();
@@ -124,8 +124,8 @@ export class DatabaseStorage implements IStorage {
       if (!r.timestamp) return;
       const date = r.timestamp.toISOString().split('T')[0];
       const stats = dailyMap.get(date) || { transfers: 0, sales: 0 };
-      if (r.closerName) stats.transfers++;
-      if (r.remarks?.toLowerCase().includes('sale')) stats.sales++;
+      if (r.closerName && !r.isSale) stats.transfers++;
+      if (r.isSale) stats.sales++;
       dailyMap.set(date, stats);
     });
     
@@ -139,8 +139,8 @@ export class DatabaseStorage implements IStorage {
     allReports.forEach(r => {
       const name = r.fronterName || 'Unknown';
       const stats = agentMap.get(name) || { transfers: 0, sales: 0 };
-      if (r.closerName) stats.transfers++;
-      if (r.remarks?.toLowerCase().includes('sale')) stats.sales++;
+      if (r.closerName && !r.isSale) stats.transfers++;
+      if (r.isSale) stats.sales++;
       agentMap.set(name, stats);
     });
     const agentPerformance = Array.from(agentMap.entries()).map(([agentName, stats]) => ({
@@ -154,11 +154,11 @@ export class DatabaseStorage implements IStorage {
     
     allReports.forEach(r => {
       if (r.location === 'onsite') {
-        if (r.closerName) onsiteStats.transfers++;
-        if (r.remarks?.toLowerCase().includes('sale')) onsiteStats.sales++;
+        if (r.closerName && !r.isSale) onsiteStats.transfers++;
+        if (r.isSale) onsiteStats.sales++;
       } else {
-        if (r.closerName) wfhStats.transfers++;
-        if (r.remarks?.toLowerCase().includes('sale')) wfhStats.sales++;
+        if (r.closerName && !r.isSale) wfhStats.transfers++;
+        if (r.isSale) wfhStats.sales++;
       }
     });
 

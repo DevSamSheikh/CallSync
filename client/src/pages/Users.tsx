@@ -463,59 +463,70 @@ export default function Users() {
                         #{user.id}
                       </TableCell>
                       <TableCell className="pr-6 text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            {isAdmin && (
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 gap-1"
+                            onClick={() => window.open(`/dashboard?agentId=${user.id}&viewAsAgent=true`, '_blank')}
+                          >
+                            <Search className="w-3.5 h-3.5" />
+                            Preview
+                          </Button>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              {isAdmin && (
+                                <DropdownMenuItem 
+                                  className="gap-2"
+                                  onClick={() => window.open(`/dashboard?agentId=${user.id}&viewAsAgent=true`, '_blank')}
+                                >
+                                  <Eye className="h-3.5 w-3.5" />
+                                  Preview
+                                </DropdownMenuItem>
+                              )}
                               <DropdownMenuItem 
                                 className="gap-2"
-                                onClick={() => window.open(`/dashboard?agentId=${user.id}&viewAsAgent=true`, '_blank')}
+                                onClick={() => handleEdit(user)}
                               >
-                                <Eye className="h-3.5 w-3.5" />
-                                Preview
+                                <Edit2 className="h-3.5 w-3.5" />
+                                Edit
                               </DropdownMenuItem>
-                            )}
-                            <DropdownMenuItem 
-                              className="gap-2"
-                              onClick={() => handleEdit(user)}
-                            >
-                              <Edit2 className="h-3.5 w-3.5" />
-                              Edit
-                            </DropdownMenuItem>
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <DropdownMenuItem 
-                                  className="gap-2 text-destructive focus:text-destructive"
-                                  onSelect={(e) => e.preventDefault()}
-                                >
-                                  <Trash2 className="h-3.5 w-3.5" />
-                                  Delete
-                                </DropdownMenuItem>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    This action cannot be undone. This will permanently delete the user account.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction 
-                                    onClick={() => deleteUser.mutate(user.id)}
-                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <DropdownMenuItem 
+                                    className="gap-2 text-destructive focus:text-destructive"
+                                    onSelect={(e) => e.preventDefault()}
                                   >
+                                    <Trash2 className="h-3.5 w-3.5" />
                                     Delete
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                                  </DropdownMenuItem>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      This action cannot be undone. This will permanently delete the user account.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction 
+                                      onClick={() => deleteUser.mutate(user.id)}
+                                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                    >
+                                      Delete
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))

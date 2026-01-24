@@ -25,6 +25,9 @@ export const reports = pgTable("reports", {
   closerName: text("closer_name").notNull(), // Made NOT NULL as requested
   remarks: text("remarks"),
   location: text("location", { enum: ["onsite", "wfh"] }).notNull().default("onsite"),
+  isSale: boolean("is_sale").notNull().default(false),
+  amount: integer("amount"),
+  bonusAmount: integer("bonus_amount"),
   // Metadata
   agentId: integer("agent_id").references(() => users.id), // The user who entered/owns this record
   createdAt: timestamp("created_at").defaultNow(),
@@ -46,6 +49,9 @@ export const insertReportSchema = createInsertSchema(reports).omit({
   agentId: true,
 }).extend({
   location: z.enum(["onsite", "wfh"]).default("onsite"),
+  isSale: z.boolean().default(false),
+  amount: z.coerce.number().optional(),
+  bonusAmount: z.coerce.number().optional(),
 });
 
 // === TYPES ===
