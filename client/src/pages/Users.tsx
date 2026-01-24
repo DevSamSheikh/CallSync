@@ -374,7 +374,7 @@ export default function Users() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input 
             placeholder="Search by name or username..." 
-            className="pl-10 bg-white"
+            className="pl-10 bg-white-input"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
