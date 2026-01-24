@@ -393,7 +393,19 @@ export default function DataEntry() {
                           <Button 
                             type="button" 
                             variant="outline"
-                            onClick={() => form.reset()}
+                            onClick={() => form.reset({
+                              phoneNo: "",
+                              accidentYear: "",
+                              state: "",
+                              zipCode: "",
+                              fronterName: user?.name || "",
+                              closerName: "",
+                              remarks: "",
+                              location: "onsite",
+                              isSale: false,
+                              amount: undefined,
+                              bonusAmount: undefined,
+                            })}
                             disabled={createReport.isPending}
                           >
                             Reset
