@@ -1,13 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { api, buildUrl } from "@shared/routes";
 
-export function useAnalytics(filters?: { days?: number; location?: string }) {
+export function useAnalytics(filters?: { days?: number; location?: string; agentId?: number }) {
   return useQuery({
     queryKey: [api.analytics.dashboard.path, filters],
     queryFn: async () => {
       const params = new URLSearchParams();
       if (filters?.days !== undefined) params.append("days", filters.days.toString());
       if (filters?.location) params.append("location", filters.location);
+      if (filters?.agentId !== undefined) params.append("agentId", filters.agentId.toString());
       
       const queryString = params.toString();
       const url = buildUrl(api.analytics.dashboard.path) + (queryString ? `?${queryString}` : "");
