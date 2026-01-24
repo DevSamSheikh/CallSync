@@ -73,9 +73,9 @@ export default function Dashboard() {
     { name: 'Sales', value: kpis.totalSales },
   ];
 
-  // If viewing as agent (from preview), treat as non-admin for UI purposes
-  const isAdmin = authUser?.role === "admin" && !viewAsAgent;
-  const user = data.agentName ? { name: data.agentName, role: viewAsAgent ? "agent" : authUser?.role } : authUser;
+  const authRole = authUser?.role || "agent";
+  const isAdmin = (authRole === "admin" || authRole === "deo") && !viewAsAgent;
+  const user = data.agentName ? { name: data.agentName, role: viewAsAgent ? "agent" : authRole } : authUser;
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
