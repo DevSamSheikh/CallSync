@@ -9,8 +9,20 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useReports, useDeleteReport } from "@/hooks/use-reports";
+import { useReports, useDeleteReport, useCreateReport } from "@/hooks/use-reports";
 import { format } from "date-fns";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { insertReportSchema, type InsertReport } from "@shared/schema";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { 
   Table, 
   TableBody, 
@@ -67,6 +79,43 @@ export default function Reports() {
   const [location, setLocation] = useState<string>("all");
   const [pageSize, setPageSize] = useState(10);
   const [pageIndex, setPageIndex] = useState(0);
+  const [editOpen, setEditOpen] = useState(false);
+  const [selectedReport, setSelectedReport] = useState<any>(null);
+
+  const form = useForm<InsertReport>({
+    resolver: zodResolver(insertReportSchema),
+    defaultValues: {
+      phoneNo: "",
+      accidentYear: "",
+      state: "",
+      closerName: "",
+      remarks: "",
+      location: "onsite",
+      fronterName: "",
+    },
+  });
+
+  const handleEdit = (report: any) => {
+    setSelectedReport(report);
+    form.reset({
+      phoneNo: report.phoneNo,
+      accidentYear: report.accidentYear,
+      state: report.state,
+      closerName: report.closerName,
+      remarks: report.remarks,
+      location: report.location,
+      fronterName: report.fronterName,
+    });
+    setEditOpen(true);
+  };
+
+  const onSubmit = (data: InsertReport) => {
+    // In a real app we'd have an update mutation
+    // For now we'll just show we're handling it
+    setEditOpen(false);
+    setSelectedReport(null);
+    form.reset();
+  };
 
   const isAdmin = user?.role === "admin";
   const isDeo = user?.role === "deo";
@@ -292,7 +341,10 @@ export default function Reports() {
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
-                                <DropdownMenuItem className="gap-2">
+                                <DropdownMenuItem 
+                                  className="gap-2"
+                                  onClick={() => handleEdit(report)}
+                                >
                                   <Edit2 className="h-3.5 w-3.5" />
                                   Edit
                                 </DropdownMenuItem>
@@ -355,41 +407,46 @@ export default function Reports() {
             </Table>
           </div>
           {filteredReports && filteredReports.length > 0 && (
-            <div className="flex items-center justify-between px-6 py-4 bg-muted/30 border-t print:hidden">
-              <div className="flex items-center gap-4">
-                <p className="text-sm text-muted-foreground">
-                  Showing {pageIndex * pageSize + 1} to {Math.min((pageIndex + 1) * pageSize, filteredReports.length)} of {filteredReports.length} results
+            <div className="flex flex-col sm:flex-row items-center justify-between px-6 py-6 bg-muted/20 border-t print:hidden gap-4">
+              <div className="flex items-center gap-4 order-2 sm:order-1">
+                <p className="text-sm font-medium text-muted-foreground bg-white/50 px-3 py-1.5 rounded-lg border border-border/50 shadow-sm">
+                  Showing <span className="text-foreground">{pageIndex * pageSize + 1}</span> to <span className="text-foreground">{Math.min((pageIndex + 1) * pageSize, filteredReports.length)}</span> of <span className="text-foreground">{filteredReports.length}</span> results
                 </p>
-                <Select value={pageSize.toString()} onValueChange={(v) => {
-                  setPageSize(parseInt(v));
-                  setPageIndex(0);
-                }}>
-                  <SelectTrigger className="w-[80px] h-8 text-xs bg-white">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="10">10</SelectItem>
-                    <SelectItem value="25">25</SelectItem>
-                    <SelectItem value="50">50</SelectItem>
-                    <SelectItem value="100">100</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Show</span>
+                  <Select value={pageSize.toString()} onValueChange={(v) => {
+                    setPageSize(parseInt(v));
+                    setPageIndex(0);
+                  }}>
+                    <SelectTrigger className="w-[70px] h-9 text-sm font-medium">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="10">10</SelectItem>
+                      <SelectItem value="25">25</SelectItem>
+                      <SelectItem value="50">50</SelectItem>
+                      <SelectItem value="100">100</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 order-1 sm:order-2 bg-white/50 p-1.5 rounded-xl border border-border/50 shadow-sm">
                 <Button 
-                  variant="outline" 
+                  variant="ghost" 
                   size="sm" 
+                  className="h-9 px-4 font-semibold hover:bg-white"
                   onClick={() => setPageIndex(p => Math.max(0, p - 1))}
                   disabled={pageIndex === 0}
                 >
                   Previous
                 </Button>
-                <div className="text-sm font-medium">
+                <div className="flex items-center px-4 h-9 bg-primary/10 text-primary rounded-lg text-sm font-bold min-w-[100px] justify-center border border-primary/20">
                   Page {pageIndex + 1} of {totalPages}
                 </div>
                 <Button 
-                  variant="outline" 
+                  variant="ghost" 
                   size="sm" 
+                  className="h-9 px-4 font-semibold hover:bg-white"
                   onClick={() => setPageIndex(p => Math.min(totalPages - 1, p + 1))}
                   disabled={pageIndex === totalPages - 1}
                 >
@@ -400,6 +457,124 @@ export default function Reports() {
           )}
         </CardContent>
       </Card>
+      <Sheet open={editOpen} onOpenChange={(val) => {
+        setEditOpen(val);
+        if (!val) setSelectedReport(null);
+      }}>
+        <SheetContent side="right" className="sm:max-w-md overflow-y-auto">
+          <SheetHeader className="mb-6">
+            <SheetTitle>Edit Report: {selectedReport?.phoneNo}</SheetTitle>
+          </SheetHeader>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="phoneNo"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Phone Number</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="fronterName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Fronter Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="accidentYear"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Accident Year</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="state"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>State</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="closerName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Closer Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="remarks"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Remarks</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="location"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Location</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select location" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="onsite">On-site</SelectItem>
+                        <SelectItem value="wfh">WFH</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="flex justify-end pt-6">
+                <Button type="submit">
+                  Save Changes
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

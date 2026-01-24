@@ -36,6 +36,9 @@
 
   --radius: 0.75rem;
 
+  --custom-card-bg: 206 99% 55% / 0.09;
+  --custom-input-bg: 206 99% 55% / 0.09;
+
   /* Custom Font Variables */
   --font-display: 'Outfit', sans-serif;
   --font-body: 'DM Sans', sans-serif;
@@ -74,6 +77,13 @@
 @layer base {
   * {
     @apply border-border;
+  }
+  input:not([type="checkbox"]):not([type="radio"]), 
+  textarea,
+  select,
+  .custom-input {
+    @apply border-0 shadow-sm transition-shadow focus-visible:ring-2 focus-visible:ring-primary !important;
+    background-color: hsl(var(--custom-input-bg)) !important;
   }
   body {
     @apply bg-background text-foreground antialiased;

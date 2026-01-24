@@ -45,11 +45,20 @@ import {
 const COLORS = ['#189bfe', '#f51288', '#00C49F', '#FFBB28'];
 
 export default function Dashboard() {
-  const { user } = useAuth();
+  const { user: authUser } = useAuth();
   const [days, setDays] = useState<number>(30);
   const [location, setLocation] = useState<string>("all");
   
-  const { data, isLoading } = useAnalytics({ days, location });
+  // Handle Preview mode from URL parameters
+  const params = new URLSearchParams(window.location.search);
+  const agentIdParam = params.get("agentId");
+  const viewAsAgent = params.get("viewAsAgent") === "true";
+  
+  const { data, isLoading } = useAnalytics({ 
+    days, 
+    location, 
+    agentId: agentIdParam ? parseInt(agentIdParam) : undefined 
+  });
 
   if (isLoading) {
     return <DashboardSkeleton />;
@@ -64,7 +73,9 @@ export default function Dashboard() {
     { name: 'Sales', value: kpis.totalSales },
   ];
 
-  const isAdmin = user?.role === "admin";
+  // If viewing as agent (from preview), treat as non-admin for UI purposes
+  const isAdmin = authUser?.role === "admin" && !viewAsAgent;
+  const user = data.agentName ? { name: data.agentName, role: viewAsAgent ? "agent" : authUser?.role } : authUser;
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -79,18 +90,20 @@ export default function Dashboard() {
             </p>
           </div>
           <div className="flex gap-2 w-full sm:w-auto">
-            <Select value={location} onValueChange={setLocation}>
-              <SelectTrigger className="flex-1 sm:w-[120px] bg-white">
-                <SelectValue placeholder="Location" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Locations</SelectItem>
-                <SelectItem value="onsite">On-site</SelectItem>
-                <SelectItem value="wfh">WFH</SelectItem>
-              </SelectContent>
-            </Select>
+            {user?.role !== "agent" && (
+              <Select value={location} onValueChange={setLocation}>
+                <SelectTrigger className="flex-1 sm:w-[120px]">
+                  <SelectValue placeholder="Location" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Locations</SelectItem>
+                  <SelectItem value="onsite">On-site</SelectItem>
+                  <SelectItem value="wfh">WFH</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
             <Select value={days.toString()} onValueChange={(v) => setDays(parseInt(v))}>
-              <SelectTrigger className="flex-1 sm:w-[120px] bg-white">
+              <SelectTrigger className="flex-1 sm:w-[120px]">
                 <SelectValue placeholder="Timeframe" />
               </SelectTrigger>
               <SelectContent>
@@ -108,29 +121,29 @@ export default function Dashboard() {
           title={isAdmin ? "Total Agents" : "Total Calls"} 
           value={isAdmin ? kpis.totalAgents : kpis.totalCalls} 
           icon={UsersIcon}
-          className="border-l-4 border-l-blue-500"
-          iconClassName="bg-blue-500/10 text-blue-500"
+          className="border-none bg-[hsl(var(--custom-card-bg))]"
+          iconClassName="bg-primary/20 text-primary"
         />
         <KPICard 
           title="Total Transfers" 
           value={kpis.totalTransfers} 
           icon={ArrowLeftRight}
-          className="border-l-4 border-l-indigo-500"
-          iconClassName="bg-indigo-500/10 text-indigo-500"
+          className="border-none bg-[hsl(var(--custom-card-bg))]"
+          iconClassName="bg-primary/20 text-primary"
         />
         <KPICard 
           title="Total Sales" 
           value={kpis.totalSales} 
           icon={BadgeCheck}
-          className="border-l-4 border-l-pink-500"
-          iconClassName="bg-pink-500/10 text-pink-500"
+          className="border-none bg-[hsl(var(--custom-card-bg))]"
+          iconClassName="bg-primary/20 text-primary"
         />
         <KPICard 
           title="Conversion Rate" 
           value={kpis.conversionRate} 
           icon={Percent}
-          className="border-l-4 border-l-emerald-500"
-          iconClassName="bg-emerald-500/10 text-emerald-500"
+          className="border-none bg-[hsl(var(--custom-card-bg))]"
+          iconClassName="bg-primary/20 text-primary"
         />
       </div>
 

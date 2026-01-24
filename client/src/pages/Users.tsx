@@ -473,7 +473,7 @@ export default function Users() {
                             {isAdmin && (
                               <DropdownMenuItem 
                                 className="gap-2"
-                                onClick={() => window.open(`/dashboard?agentId=${user.id}`, '_blank')}
+                                onClick={() => window.open(`/dashboard?agentId=${user.id}&viewAsAgent=true`, '_blank')}
                               >
                                 <Eye className="h-3.5 w-3.5" />
                                 Preview
