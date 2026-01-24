@@ -228,8 +228,8 @@ export default function Reports() {
                   <TableHead>State</TableHead>
                   <TableHead>Location</TableHead>
                   <TableHead>Closer</TableHead>
-                  <TableHead>Remarks</TableHead>
-                  {isAdminOrDeo && <TableHead className="pr-6 text-right">Actions</TableHead>}
+                  <TableHead className="w-[200px]">Remarks</TableHead>
+                  {isAdminOrDeo && <TableHead className="pr-6 text-right print:hidden">Actions</TableHead>}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -251,7 +251,8 @@ export default function Reports() {
                 ) : (
                   <>
                     {/* Screen view - Paginated */}
-                    {paginatedReports?.map((report) => (
+                    <TooltipProvider>
+                      {paginatedReports?.map((report) => (
                       <TableRow key={`screen-${report.id}`} className="hover:bg-muted/30 transition-colors print:hidden">
                         <TableCell className="pl-6 font-mono text-xs">
                           {report.timestamp ? format(new Date(report.timestamp), "MMM dd, HH:mm:ss") : "-"}
@@ -270,8 +271,17 @@ export default function Reports() {
                             {report.closerName}
                           </Badge>
                         </TableCell>
-                        <TableCell className="max-w-[300px] truncate" title={report.remarks || ""}>
-                          {report.remarks}
+                        <TableCell className="w-[200px] py-2">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="line-clamp-2 text-sm leading-tight cursor-help break-words">
+                                {report.remarks}
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent className="max-w-[300px] p-2 break-words bg-popover text-popover-foreground shadow-md border rounded-md">
+                              <p className="text-xs">{report.remarks}</p>
+                            </TooltipContent>
+                          </Tooltip>
                         </TableCell>
                         {isAdminOrDeo && (
                           <TableCell className="pr-6 text-right print:hidden">
@@ -320,6 +330,7 @@ export default function Reports() {
                         )}
                       </TableRow>
                     ))}
+                    </TooltipProvider>
                     
                     {/* Print view - Full List */}
                     {printReports.map((report) => (
