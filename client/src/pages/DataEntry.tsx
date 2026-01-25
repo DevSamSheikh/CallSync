@@ -127,6 +127,7 @@ export default function DataEntry() {
             closerName: row.closerName || row.Closer || "",
             remarks: row.remarks || row.Remarks || "",
             location: (row.location?.toLowerCase() === 'wfh' ? 'wfh' : 'onsite') as "onsite" | "wfh",
+            isSale: false,
           }));
 
           bulkCreate.mutate(validReports);
