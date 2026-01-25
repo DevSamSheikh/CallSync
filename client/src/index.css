@@ -27,14 +27,14 @@
   --accent: 206 99% 95%;         /* Light blue accent for hover states */
   --accent-foreground: 222 47% 11%;
 
-  --destructive: 0 84.2% 60.2%;
+  --destructive: 0 78% 55%;         /* #E43636 */
   --destructive-foreground: 210 40% 98%;
 
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
+  --border: 226 58% 88%;         /* Soft blue-ish border for inputs */
+  --input: 226 58% 88%;
   --ring: 206 99% 55%;
 
-  --radius: 0.75rem;
+  --radius: 0.5rem;             /* Slightly smaller radius for more professional look */
 
   --custom-card-bg: 206 99% 55% / 0.09;
   --custom-input-bg: 206 100% 66.81% / 0.05;
@@ -82,8 +82,8 @@
   textarea,
   select,
   .custom-input {
-    @apply border-0 transition-shadow focus-visible:ring-2 focus-visible:ring-primary !important;
-    background-color: hsl(var(--custom-input-bg)) !important;
+    @apply border transition-all focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary !important;
+    background-color: #ffffff !important;
   }
   .bg-white-input {
     background-color: #ffffff !important;

@@ -357,7 +357,7 @@ export default function Reports() {
                                 <AlertDialog>
                                   <AlertDialogTrigger asChild>
                                     <DropdownMenuItem 
-                                      className="gap-2 text-destructive focus:text-destructive"
+                                      className="gap-2 text-[#E43636] focus:text-[#E43636]"
                                       onSelect={(e) => e.preventDefault()}
                                     >
                                       <Trash2 className="h-3.5 w-3.5" />
@@ -375,7 +375,7 @@ export default function Reports() {
                                       <AlertDialogCancel>Cancel</AlertDialogCancel>
                                       <AlertDialogAction 
                                         onClick={() => deleteReport.mutate(report.id)}
-                                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                        className="bg-[#E43636] text-white hover:bg-[#E43636]/90"
                                       >
                                         Delete
                                       </AlertDialogAction>

@@ -162,9 +162,67 @@ export default function DataEntry() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500 max-w-5xl mx-auto">
-      <div>
-        <h2 className="text-3xl font-display font-bold tracking-tight">Data Entry</h2>
-        <p className="text-muted-foreground mt-1">Submit new call reports or bulk upload</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 className="text-3xl font-display font-bold tracking-tight">Data Entry</h2>
+          <p className="text-muted-foreground mt-1">Submit new call reports or bulk upload</p>
+        </div>
+        
+        {isAdminOrDeo && (
+          <div className="flex flex-col gap-1.5 w-full sm:w-[240px]">
+            <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground ml-1">
+              Select Agent
+            </label>
+            <Popover open={open} onOpenChange={setOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={open}
+                  className={cn(
+                    "justify-between bg-white border-primary/20 hover:border-primary/40 h-10 shadow-sm",
+                    !form.watch("fronterName") && "text-muted-foreground"
+                  )}
+                >
+                  {form.watch("fronterName")
+                    ? agents.find((agent) => agent.name === form.watch("fronterName"))?.name
+                    : "Search agents..."}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[240px] p-0" align="end">
+                <Command>
+                  <CommandInput placeholder="Search agent name..." />
+                  <CommandList>
+                    <CommandEmpty>No agent found.</CommandEmpty>
+                    <CommandGroup>
+                      {agents.map((agent) => (
+                        <CommandItem
+                          key={agent.id}
+                          value={agent.name}
+                          onSelect={() => {
+                            form.setValue("fronterName", agent.name);
+                            setOpen(false);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              agent.name === form.watch("fronterName")
+                                ? "opacity-100"
+                                : "opacity-0"
+                            )}
+                          />
+                          {agent.name}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+          </div>
+        )}
       </div>
 
       {!isAdminOrDeo ? (
@@ -197,7 +255,7 @@ export default function DataEntry() {
                               <FormItem>
                                 <FormLabel>Phone Number</FormLabel>
                                 <FormControl>
-                                  <Input placeholder="123-456-7890" {...field} className="bg-white" />
+                                  <Input placeholder="123-456-7890" {...field} className="h-10 border-primary/20" />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -210,7 +268,7 @@ export default function DataEntry() {
                               <FormItem>
                                 <FormLabel>Accident Year</FormLabel>
                                 <FormControl>
-                                  <Input placeholder="2024" {...field} value={field.value || ''} className="bg-white" />
+                                  <Input placeholder="2024" {...field} value={field.value || ''} className="h-10 border-primary/20" />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -223,7 +281,7 @@ export default function DataEntry() {
                               <FormItem>
                                 <FormLabel>State</FormLabel>
                                 <FormControl>
-                                  <Input placeholder="TX" {...field} value={field.value || ''} className="bg-white" />
+                                  <Input placeholder="TX" {...field} value={field.value || ''} className="h-10 border-primary/20" />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -233,59 +291,10 @@ export default function DataEntry() {
                             control={form.control}
                             name="fronterName"
                             render={({ field }) => (
-                              <FormItem className="flex flex-col">
-                                <FormLabel>User/Agent</FormLabel>
-                                <Popover open={open} onOpenChange={setOpen}>
-                                  <PopoverTrigger asChild>
-                                    <FormControl>
-                                      <Button
-                                        variant="outline"
-                                        role="combobox"
-                                        aria-expanded={open}
-                                        className={cn(
-                                          "justify-between bg-white",
-                                          !field.value && "text-muted-foreground"
-                                        )}
-                                      >
-                                        {field.value
-                                          ? agents.find((agent) => agent.name === field.value)?.name
-                                          : "Select agent..."}
-                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                      </Button>
-                                    </FormControl>
-                                  </PopoverTrigger>
-                                  <PopoverContent className="w-[200px] p-0">
-                                    <Command>
-                                      <CommandInput placeholder="Search agent..." />
-                                      <CommandList>
-                                        <CommandEmpty>No agent found.</CommandEmpty>
-                                        <CommandGroup>
-                                          {agents.map((agent) => (
-                                            <CommandItem
-                                              key={agent.id}
-                                              value={agent.name}
-                                              onSelect={() => {
-                                                form.setValue("fronterName", agent.name);
-                                                setOpen(false);
-                                              }}
-                                            >
-                                              <Check
-                                                className={cn(
-                                                  "mr-2 h-4 w-4",
-                                                  agent.name === field.value
-                                                    ? "opacity-100"
-                                                    : "opacity-0"
-                                                )}
-                                              />
-                                              {agent.name}
-                                            </CommandItem>
-                                          ))}
-                                        </CommandGroup>
-                                      </CommandList>
-                                    </Command>
-                                  </PopoverContent>
-                                </Popover>
-                                <FormMessage />
+                              <FormItem className="hidden">
+                                <FormControl>
+                                  <Input {...field} />
+                                </FormControl>
                               </FormItem>
                             )}
                           />
@@ -296,7 +305,7 @@ export default function DataEntry() {
                               <FormItem>
                                 <FormLabel>Closer Name</FormLabel>
                                 <FormControl>
-                                  <Input placeholder="Closer Name" {...field} className="bg-white" />
+                                  <Input placeholder="Closer Name" {...field} className="h-10 border-primary/20" />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -310,7 +319,7 @@ export default function DataEntry() {
                                 <FormLabel>Location</FormLabel>
                                 <Select onValueChange={field.onChange} value={field.value}>
                                   <FormControl>
-                                    <SelectTrigger className="bg-white">
+                                    <SelectTrigger className="h-10 border-primary/20">
                                       <SelectValue placeholder="Select location" />
                                     </SelectTrigger>
                                   </FormControl>
@@ -327,14 +336,15 @@ export default function DataEntry() {
                             control={form.control}
                             name="isSale"
                             render={({ field }) => (
-                              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                              <FormItem className="flex flex-row items-center justify-between rounded-lg border border-primary/20 p-3 shadow-sm h-10 bg-white">
                                 <div className="space-y-0.5">
-                                  <FormLabel>Sale</FormLabel>
+                                  <FormLabel className="text-sm">Sale</FormLabel>
                                 </div>
                                 <FormControl>
                                   <Switch
                                     checked={field.value}
                                     onCheckedChange={field.onChange}
+                                    className="data-[state=checked]:bg-primary"
                                   />
                                 </FormControl>
                               </FormItem>
@@ -349,7 +359,7 @@ export default function DataEntry() {
                                   <FormItem>
                                     <FormLabel>Amount</FormLabel>
                                     <FormControl>
-                                      <Input type="number" placeholder="0" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} className="bg-white" />
+                                      <Input type="number" placeholder="0" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} className="h-10 border-primary/20" />
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
@@ -362,7 +372,7 @@ export default function DataEntry() {
                                   <FormItem>
                                     <FormLabel>Bonus Amount</FormLabel>
                                     <FormControl>
-                                      <Input type="number" placeholder="0" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} className="bg-white" />
+                                      <Input type="number" placeholder="0" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} className="h-10 border-primary/20" />
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
@@ -380,7 +390,7 @@ export default function DataEntry() {
                                 <FormControl>
                                   <Textarea 
                                     placeholder="Call notes, customer sentiment, etc." 
-                                    className="resize-none h-24 bg-white"
+                                    className="resize-none h-24 border-primary/20"
                                     {...field} 
                                     value={field.value || ''}
                                   />
@@ -393,6 +403,7 @@ export default function DataEntry() {
                           <Button 
                             type="button" 
                             variant="outline"
+                            className="border-primary/20"
                             onClick={() => form.reset({
                               phoneNo: "",
                               accidentYear: "",
