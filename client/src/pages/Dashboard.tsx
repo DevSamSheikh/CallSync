@@ -57,8 +57,8 @@ export default function Dashboard() {
   const { data, isLoading } = useAnalytics({
     days,
     location,
-    agentId: agentIdParam ? parseInt(agentIdParam) : undefined,
-  });
+    ...(agentIdParam ? { agentId: parseInt(agentIdParam) } : {}),
+  } as any);
 
   if (isLoading) {
     return <DashboardSkeleton />;
@@ -75,8 +75,8 @@ export default function Dashboard() {
 
   const authRole = authUser?.role || "agent";
   const isAdmin = (authRole === "admin" || authRole === "deo") && !viewAsAgent;
-  const user = data.agentName
-    ? { name: data.agentName, role: viewAsAgent ? "agent" : authRole }
+  const user = (data as any).agentName
+    ? { name: (data as any).agentName, role: viewAsAgent ? "agent" : authRole }
     : authUser;
 
   return (

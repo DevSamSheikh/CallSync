@@ -9,7 +9,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useReports, useDeleteReport, useCreateReport } from "@/hooks/use-reports";
+import { useReports, useDeleteReport } from "@/hooks/use-reports";
 import { format } from "date-fns";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useForm } from "react-hook-form";
@@ -31,7 +31,7 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Download, Loader2, Search, MoreVertical, Edit2, Trash2, Printer } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -59,9 +59,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAuth } from "@/hooks/use-auth";
-import { KPICard } from "@/components/KPICard";
-import { Users as UsersIcon } from "lucide-react";
-
 import {
   Tooltip,
   TooltipContent,
@@ -110,8 +107,6 @@ export default function Reports() {
   };
 
   const onSubmit = (data: InsertReport) => {
-    // In a real app we'd have an update mutation
-    // For now we'll just show we're handling it
     setEditOpen(false);
     setSelectedReport(null);
     form.reset();
@@ -127,8 +122,6 @@ export default function Reports() {
 
   const handleExport = () => {
     if (!reports) return;
-    
-    // Simple CSV export logic
     const headers = ["Timestamp", "Phone No", "Accident Year", "State", "Closer", "Remarks", "Location", "Fronter"];
     const csvContent = [
       headers.join(","),
@@ -138,7 +131,7 @@ export default function Reports() {
         r.accidentYear || "",
         r.state || "",
         r.closerName || "",
-        `"${r.remarks || ""}"`, // Escape quotes for remarks
+        `"${r.remarks || ""}"`,
         r.location,
         r.fronterName || ""
       ].join(","))
@@ -171,8 +164,6 @@ export default function Reports() {
 
   const paginatedReports = filteredReports?.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize);
   const totalPages = Math.ceil((filteredReports?.length || 0) / pageSize);
-
-  // When printing, we want to show all filtered results, not just the current page
   const printReports = filteredReports || [];
 
   return (
@@ -301,7 +292,6 @@ export default function Reports() {
                   </TableRow>
                 ) : (
                   <>
-                    {/* Screen view - Paginated */}
                     <TooltipProvider>
                       {paginatedReports?.map((report) => (
                       <TableRow key={`screen-${report.id}`} className="hover:bg-muted/30 transition-colors print:hidden">
@@ -398,7 +388,7 @@ export default function Reports() {
                         )}
                       </TableRow>
                     ))}
-                    {/* Print view - Full List */}
+                    </TooltipProvider>
                     {printReports.map((report) => (
                       <TableRow key={`print-${report.id}`} className="hidden print:table-row">
                         <TableCell className="pl-6 font-mono text-xs">
