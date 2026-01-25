@@ -85,8 +85,14 @@
     @apply border transition-all focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary !important;
     background-color: #ffffff !important;
   }
-  .bg-white-input {
-    background-color: #ffffff !important;
+  .btn-primary {
+    @apply bg-primary text-primary-foreground shadow-sm hover:shadow-md transition-all duration-200 border-b-[3px] border-primary/40 active:border-b-0 active:translate-y-[1px];
+  }
+  .btn-outline {
+    @apply border border-primary/20 bg-white hover:bg-accent hover:border-primary/40 transition-all duration-200 shadow-sm border-b-[3px] border-gray-100 active:border-b-0 active:translate-y-[1px];
+  }
+  .btn-destructive {
+    @apply bg-[#E43636] text-white shadow-sm hover:shadow-md transition-all duration-200 border-b-[3px] border-black/20 active:border-b-0 active:translate-y-[1px];
   }
   body {
     @apply bg-background text-foreground antialiased;

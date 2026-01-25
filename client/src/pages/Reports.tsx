@@ -33,7 +33,7 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Download, Loader2, Search, MoreVertical, Edit2, Trash2, Printer } from "lucide-react";
+import { Download, Loader2, Search, MoreVertical, Edit2, Trash2, Printer, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
@@ -346,7 +346,14 @@ export default function Reports() {
                                   <MoreVertical className="h-4 w-4" />
                                 </Button>
                               </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
+                              <DropdownMenuContent align="end" className="w-[160px]">
+                                <DropdownMenuItem 
+                                  className="gap-2"
+                                  onClick={() => handleEdit(report)}
+                                >
+                                  <Eye className="h-3.5 w-3.5" />
+                                  Preview
+                                </DropdownMenuItem>
                                 <DropdownMenuItem 
                                   className="gap-2"
                                   onClick={() => handleEdit(report)}

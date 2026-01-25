@@ -32,7 +32,7 @@ function ProtectedRoute({ component: Component }: { component: React.ComponentTy
   return (
     <div className="flex min-h-screen bg-muted/20">
       <Sidebar />
-      <main className="flex-1 lg:pl-[var(--sidebar-offset,288px)] p-6 md:p-8 overflow-x-hidden transition-all duration-300">
+      <main className="flex-1 lg:pl-[var(--sidebar-offset,288px)] ml-8 p-6 md:p-8 overflow-x-hidden transition-all duration-300">
         <div className="max-w-7xl mx-auto mt-12 lg:mt-0">
           <Component />
         </div>

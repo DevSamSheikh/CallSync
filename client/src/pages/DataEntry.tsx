@@ -161,6 +161,61 @@ export default function DataEntry() {
 
   const isAdminOrDeo = user?.role === "admin" || user?.role === "deo";
 
+  const AgentSelect = () => (
+    isAdminOrDeo && (
+      <div className="flex flex-col gap-1.5 w-full sm:w-[240px]">
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              role="combobox"
+              aria-expanded={open}
+              className={cn(
+                "justify-between bg-white border-primary/20 hover:border-primary/40 h-10 shadow-sm",
+                !form.watch("fronterName") && "text-muted-foreground"
+              )}
+            >
+              {form.watch("fronterName")
+                ? agents.find((agent) => agent.name === form.watch("fronterName"))?.name
+                : "Search agents..."}
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-[240px] p-0" align="end">
+            <Command>
+              <CommandInput placeholder="Search agent name..." />
+              <CommandList>
+                <CommandEmpty>No agent found.</CommandEmpty>
+                <CommandGroup>
+                  {agents.map((agent) => (
+                    <CommandItem
+                      key={agent.id}
+                      value={agent.name}
+                      onSelect={() => {
+                        form.setValue("fronterName", agent.name);
+                        setOpen(false);
+                      }}
+                    >
+                      <Check
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          agent.name === form.watch("fronterName")
+                            ? "opacity-100"
+                            : "opacity-0"
+                        )}
+                      />
+                      {agent.name}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
+      </div>
+    )
+  );
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500 max-w-5xl mx-auto">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -168,62 +223,6 @@ export default function DataEntry() {
           <h2 className="text-3xl font-display font-bold tracking-tight">Data Entry</h2>
           <p className="text-muted-foreground mt-1">Submit new call reports or bulk upload</p>
         </div>
-        
-        {isAdminOrDeo && (
-          <div className="flex flex-col gap-1.5 w-full sm:w-[240px]">
-            <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground ml-1">
-              Select Agent
-            </label>
-            <Popover open={open} onOpenChange={setOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={open}
-                  className={cn(
-                    "justify-between bg-white border-primary/20 hover:border-primary/40 h-10 shadow-sm",
-                    !form.watch("fronterName") && "text-muted-foreground"
-                  )}
-                >
-                  {form.watch("fronterName")
-                    ? agents.find((agent) => agent.name === form.watch("fronterName"))?.name
-                    : "Search agents..."}
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-[240px] p-0" align="end">
-                <Command>
-                  <CommandInput placeholder="Search agent name..." />
-                  <CommandList>
-                    <CommandEmpty>No agent found.</CommandEmpty>
-                    <CommandGroup>
-                      {agents.map((agent) => (
-                        <CommandItem
-                          key={agent.id}
-                          value={agent.name}
-                          onSelect={() => {
-                            form.setValue("fronterName", agent.name);
-                            setOpen(false);
-                          }}
-                        >
-                          <Check
-                            className={cn(
-                              "mr-2 h-4 w-4",
-                              agent.name === form.watch("fronterName")
-                                ? "opacity-100"
-                                : "opacity-0"
-                            )}
-                          />
-                          {agent.name}
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
-          </div>
-        )}
       </div>
 
       {!isAdminOrDeo ? (

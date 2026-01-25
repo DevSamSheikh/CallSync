@@ -57,7 +57,7 @@ export function Sidebar() {
         </Button>
       </div>
 
-      <div className="flex-1 py-6 px-4 space-y-2 overflow-y-auto">
+      <div className="flex-1 py-6 px-4 space-y-4 overflow-y-auto">
         {navItems.map((item) => {
           const isActive = location === item.href;
           return (
