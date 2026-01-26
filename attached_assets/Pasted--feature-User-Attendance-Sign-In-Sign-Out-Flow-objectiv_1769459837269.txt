@@ -1,0 +1,91 @@
+{
+  "feature": "User Attendance Sign In / Sign Out Flow",
+  "objective": "Implement a complete sign-in and sign-out attendance system with timing, penalties, grace period, and admin controls.",
+  "roles": {
+    "user": "Employee who signs in and signs out",
+    "admin": "Can configure shift timing, update bonuses, remarks, and view attendance"
+  },
+  "sign_in_flow": {
+    "action": "User clicks Sign In button",
+    "behavior": [
+      "Start a live timer next to the Sign In button",
+      "Timer starts from 00:00 and shows elapsed time in HH:MM format",
+      "Mark user status as 'Active / Signed In'",
+      "Store sign-in time and date in attendance table"
+    ]
+  },
+  "sign_out_flow": {
+    "default_shift_duration_hours": 9,
+    "grace_period_minutes": 5,
+    "action": "User clicks Sign Out button",
+    "behavior": [
+      "Stop the running timer",
+      "Calculate total worked time",
+      "Compare sign-out time with required shift time",
+      "Apply fine logic automatically"
+    ]
+  },
+  "fine_rules": {
+    "fine_amount": 500,
+    "currency": "PKR",
+    "conditions": [
+      "If user signs out before completing 9 hours (excluding 5-minute grace period)",
+      "If user signs out after allowed shift end time (excluding grace period)"
+    ]
+  },
+  "attendance_table_behavior": {
+    "on_sign_in": {
+      "create_new_row": true,
+      "fields": {
+        "date": "Current date",
+        "sign_in_time": "Actual sign-in time",
+        "sign_out_time": "-",
+        "worked_hours": "-",
+        "fine": "-",
+        "bonus": "-",
+        "remarks": "-"
+      }
+    },
+    "on_sign_out": {
+      "update_existing_row": true,
+      "fields_updated": [
+        "sign_out_time",
+        "worked_hours",
+        "fine (auto-calculated)"
+      ]
+    }
+  },
+  "admin_controls": {
+    "settings": [
+      "Change default shift duration (default = 9 hours)",
+      "Reset or modify sign-out time rules"
+    ],
+    "attendance_management": [
+      "Update sales bonus",
+      "Add remarks",
+      "View fine and attendance logs"
+    ]
+  },
+  "automation_rules": {
+    "fine_calculation": "Automatic on sign out",
+    "grace_period_application": "Automatically applied",
+    "bonus_and_remarks": "Manually updated by admin"
+  },
+  "edge_cases": {
+    "multiple_sign_ins_same_day": "Prevent or warn user",
+    "sign_out_without_sign_in": "Block action",
+    "browser_refresh": "Timer should persist using backend or local storage"
+  },
+  "output_expectation": {
+    "ui": [
+      "Sign In button with live timer",
+      "Sign Out button",
+      "Attendance table with daily records"
+    ],
+    "backend": [
+      "Accurate time tracking",
+      "Automatic fine logic",
+      "Admin-configurable settings"
+    ]
+  }
+}

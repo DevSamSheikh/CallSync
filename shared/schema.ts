@@ -39,6 +39,7 @@ export const attendance = pgTable("attendance", {
   date: timestamp("date").notNull().defaultNow(),
   signInTime: timestamp("sign_in_time"),
   signOutTime: timestamp("sign_out_time"),
+  workedHours: integer("worked_hours"),
   salesCount: integer("sales_count").notNull().default(0),
   bonusAmount: integer("bonus_amount").notNull().default(0),
   dockAmount: integer("dock_amount").notNull().default(0),

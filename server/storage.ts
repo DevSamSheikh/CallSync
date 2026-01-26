@@ -124,6 +124,11 @@ export class DatabaseStorage implements IStorage {
         userId,
         signInTime: now,
         date: now,
+        workedHours: 0,
+        dockAmount: 0,
+        bonusAmount: 0,
+        salesCount: 0,
+        isSalaryDay: false,
       }).returning();
       return newAttendance;
     } else {
@@ -135,8 +140,30 @@ export class DatabaseStorage implements IStorage {
         }).returning();
         return newAttendance;
       }
+      const signOutTime = new Date();
+      const signInTime = new Date(existing.signInTime!);
+      const workedMs = signOutTime.getTime() - signInTime.getTime();
+      const workedHours = workedMs / (1000 * 60 * 60);
+      
+      let dockAmount = existing.dockAmount || 0;
+      let remark = existing.remark || "";
+      
+      // Default shift: 9 hours, 5-min grace period (9 * 60 - 5 = 535 minutes)
+      const requiredMinutes = 9 * 60 - 5;
+      const workedMinutes = workedMs / (1000 * 60);
+      
+      if (workedMinutes < requiredMinutes && !existing.isSalaryDay) {
+        dockAmount += 500;
+        remark = remark ? `${remark}, 500 - Early Sign Out` : "500 - Early Sign Out";
+      }
+
       const [updated] = await db.update(attendance)
-        .set({ signOutTime: new Date() })
+        .set({ 
+          signOutTime,
+          workedHours: Math.round(workedHours * 100) / 100,
+          dockAmount,
+          remark
+        })
         .where(eq(attendance.id, existing.id))
         .returning();
       return updated;

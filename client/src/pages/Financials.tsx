@@ -49,6 +49,25 @@ export default function Financials() {
     return attendanceData.find(a => new Date(a.date).toDateString() === today);
   }, [attendanceData]);
 
+  const [elapsed, setElapsed] = useState<string>("00:00");
+
+  useMemo(() => {
+    if (todayAttendance?.signInTime && !todayAttendance?.signOutTime) {
+      const interval = setInterval(() => {
+        const start = new Date(todayAttendance.signInTime!).getTime();
+        const now = new Date().getTime();
+        const diff = now - start;
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        setElapsed(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+      }, 1000);
+      return () => clearInterval(interval);
+    } else {
+      setElapsed("00:00:00");
+    }
+  }, [todayAttendance]);
+
   const stats = useMemo(() => {
     if (!attendanceData || !reports) return { salary: 30000, punctuality: 0, bonus: 0, docks: 0 };
     
@@ -134,7 +153,7 @@ export default function Financials() {
 
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
         <span className="font-semibold text-sm">Mark Attendance.</span>
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap gap-3 items-center">
           {!todayAttendance?.signInTime ? (
             <Button 
               className="bg-primary hover:bg-primary/90 text-white min-h-9 shadow-md active-elevate-2 w-full sm:w-auto"
@@ -145,15 +164,21 @@ export default function Financials() {
               Sign In
             </Button>
           ) : !todayAttendance?.signOutTime ? (
-            <Button 
-              variant="outline"
-              className="border-primary/20 hover:bg-primary/5 min-h-9 shadow-sm active-elevate-2 w-full sm:w-auto"
-              onClick={() => markAttendance.mutate('out')}
-              disabled={markAttendance.isPending}
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              Sign Out
-            </Button>
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <div className="flex items-center gap-2 bg-blue-50 text-blue-600 px-4 py-1.5 rounded-lg border border-blue-100 font-mono font-bold">
+                <Clock className="w-4 h-4 animate-pulse" />
+                {elapsed}
+              </div>
+              <Button 
+                variant="outline"
+                className="border-primary/20 hover:bg-primary/5 min-h-9 shadow-sm active-elevate-2 flex-1 sm:flex-none"
+                onClick={() => markAttendance.mutate('out')}
+                disabled={markAttendance.isPending}
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Sign Out
+              </Button>
+            </div>
           ) : (
             <Badge variant="outline" className="h-9 px-4 text-green-600 border-green-200 bg-green-50 w-full sm:w-auto justify-center">
               Attendance Completed
@@ -171,8 +196,9 @@ export default function Financials() {
                 <TableHeader className="bg-blue-50/50">
                   <TableRow className="border-none">
                     <TableHead className="font-bold text-foreground py-3 px-4">Date</TableHead>
-                    <TableHead className="font-bold text-foreground py-3 px-4">Sign In Time</TableHead>
-                    <TableHead className="font-bold text-foreground py-3 px-4">Sign Out Time</TableHead>
+                    <TableHead className="font-bold text-foreground py-3 px-4">Sign In</TableHead>
+                    <TableHead className="font-bold text-foreground py-3 px-4">Sign Out</TableHead>
+                    <TableHead className="font-bold text-foreground py-3 px-4">Worked</TableHead>
                     <TableHead className="font-bold text-foreground py-3 px-4">Sales</TableHead>
                     <TableHead className="font-bold text-foreground py-3 px-4">Bonus</TableHead>
                     <TableHead className="font-bold text-foreground py-3 px-4">Dock</TableHead>
@@ -195,6 +221,7 @@ export default function Financials() {
                         <TableCell className="py-4 px-4">{format(new Date(entry.date), "MMM dd, yyyy")}</TableCell>
                         <TableCell className="py-4 px-4">{entry.signInTime ? format(new Date(entry.signInTime), "hh:mm a") : "-"}</TableCell>
                         <TableCell className="py-4 px-4">{entry.signOutTime ? format(new Date(entry.signOutTime), "hh:mm a") : "-"}</TableCell>
+                        <TableCell className="py-4 px-4">{entry.workedHours ? `${entry.workedHours}h` : "-"}</TableCell>
                         <TableCell className="font-medium py-4 px-4">{entry.salesCount}</TableCell>
                         <TableCell className="text-green-600 font-medium py-4 px-4">+{entry.bonusAmount}</TableCell>
                         <TableCell className="text-destructive font-medium py-4 px-4">-{entry.dockAmount}</TableCell>
