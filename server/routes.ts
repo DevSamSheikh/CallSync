@@ -208,7 +208,8 @@ export async function seed() {
         closerName: "Zainab",
         remarks: "sounding fishy and hungup when i asked about info",
         agentId: demoAgent.id,
-        location: "onsite" as const
+        location: "onsite" as const,
+        isSale: false
       },
       {
         timestamp: new Date("2026-01-03 21:29:53"),
@@ -220,7 +221,8 @@ export async function seed() {
         closerName: "Gulfaraz",
         remarks: "Attorney dealing",
         agentId: demoAgent.id,
-        location: "onsite" as const
+        location: "onsite" as const,
+        isSale: false
       },
       {
         timestamp: new Date("2026-01-03 22:27:53"),
@@ -232,7 +234,8 @@ export async function seed() {
         closerName: "Sami",
         remarks: "Cx said everyone got the ticket",
         agentId: demoAgent.id,
-        location: "wfh" as const
+        location: "wfh" as const,
+        isSale: false
       },
       {
         timestamp: new Date("2026-01-03 23:31:35"),
@@ -244,7 +247,8 @@ export async function seed() {
         closerName: "Gulfaraz",
         remarks: "acc 2023",
         agentId: demoAgent.id,
-        location: "onsite" as const
+        location: "onsite" as const,
+        isSale: false
       },
       {
         timestamp: new Date("2026-01-03 23:46:43"),
@@ -256,7 +260,8 @@ export async function seed() {
         closerName: "Gulfaraz",
         remarks: "DNC",
         agentId: demoAgent.id,
-        location: "wfh" as const
+        location: "wfh" as const,
+        isSale: false
       },
       {
         timestamp: new Date("2026-01-04 01:19:49"),
@@ -268,7 +273,8 @@ export async function seed() {
         closerName: "Zainab",
         remarks: "Already claimed",
         agentId: demoAgent.id,
-        location: "onsite" as const
+        location: "onsite" as const,
+        isSale: false
       },
       {
         timestamp: new Date("2026-01-05 10:15:00"),
@@ -280,7 +286,8 @@ export async function seed() {
         closerName: "Sami",
         remarks: "Interested in sale",
         agentId: demoAgent.id,
-        location: "wfh" as const
+        location: "wfh" as const,
+        isSale: false
       },
       {
         timestamp: new Date("2026-01-06 14:30:00"),
@@ -292,7 +299,8 @@ export async function seed() {
         closerName: "Gulfaraz",
         remarks: "Successful Transfer",
         agentId: demoAgent.id,
-        location: "onsite" as const
+        location: "onsite" as const,
+        isSale: false
       }
     ];
 
