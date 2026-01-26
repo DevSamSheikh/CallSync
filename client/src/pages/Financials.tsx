@@ -71,17 +71,17 @@ export default function Financials() {
   }, []);
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500 max-w-6xl mx-auto">
-      <div className="flex justify-between items-end">
+    <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-500 max-w-6xl mx-auto px-4 sm:px-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-2 sm:gap-4">
         <div>
-          <h2 className="text-3xl font-display font-bold tracking-tight">Your Financial Stats:</h2>
+          <h2 className="text-2xl sm:text-3xl font-display font-bold tracking-tight">Your Financial Stats:</h2>
         </div>
-        <div className="text-muted-foreground font-medium">
+        <div className="text-sm sm:text-base text-muted-foreground font-medium">
           Relase in <span className="text-primary font-bold">{daysToSalary}</span> Days
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <Card className="border-none shadow-sm hover-elevate transition-all overflow-visible">
           <CardContent className="p-6 flex items-center justify-between">
             <div>
@@ -132,82 +132,86 @@ export default function Financials() {
         </Card>
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
         <span className="font-semibold text-sm">Mark Attendance.</span>
-        {!todayAttendance?.signInTime ? (
-          <Button 
-            className="bg-primary hover:bg-primary/90 text-white min-h-9 shadow-md active-elevate-2"
-            onClick={() => markAttendance.mutate('in')}
-            disabled={markAttendance.isPending}
-          >
-            <LogIn className="w-4 h-4 mr-2" />
-            Sign In
-          </Button>
-        ) : !todayAttendance?.signOutTime ? (
-          <Button 
-            variant="outline"
-            className="border-primary/20 hover:bg-primary/5 min-h-9 shadow-sm active-elevate-2"
-            onClick={() => markAttendance.mutate('out')}
-            disabled={markAttendance.isPending}
-          >
-            <LogOut className="w-4 h-4 mr-2" />
-            Sign Out
-          </Button>
-        ) : (
-          <Badge variant="outline" className="h-9 px-4 text-green-600 border-green-200 bg-green-50">
-            Attendance Completed
-          </Badge>
-        )}
+        <div className="flex flex-wrap gap-3">
+          {!todayAttendance?.signInTime ? (
+            <Button 
+              className="bg-primary hover:bg-primary/90 text-white min-h-9 shadow-md active-elevate-2 w-full sm:w-auto"
+              onClick={() => markAttendance.mutate('in')}
+              disabled={markAttendance.isPending}
+            >
+              <LogIn className="w-4 h-4 mr-2" />
+              Sign In
+            </Button>
+          ) : !todayAttendance?.signOutTime ? (
+            <Button 
+              variant="outline"
+              className="border-primary/20 hover:bg-primary/5 min-h-9 shadow-sm active-elevate-2 w-full sm:w-auto"
+              onClick={() => markAttendance.mutate('out')}
+              disabled={markAttendance.isPending}
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Sign Out
+            </Button>
+          ) : (
+            <Badge variant="outline" className="h-9 px-4 text-green-600 border-green-200 bg-green-50 w-full sm:w-auto justify-center">
+              Attendance Completed
+            </Badge>
+          )}
+        </div>
       </div>
 
       <div className="space-y-4">
         <h3 className="text-xl font-bold">Daily Stats / Finance History</h3>
         <Card className="border-none shadow-md overflow-hidden">
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader className="bg-blue-50/50">
-                <TableRow className="border-none">
-                  <TableHead className="font-bold text-foreground">Date</TableHead>
-                  <TableHead className="font-bold text-foreground">Sign In Time</TableHead>
-                  <TableHead className="font-bold text-foreground">Sign Out Time</TableHead>
-                  <TableHead className="font-bold text-foreground">Sales</TableHead>
-                  <TableHead className="font-bold text-foreground">Bonus</TableHead>
-                  <TableHead className="font-bold text-foreground">Dock</TableHead>
-                  <TableHead className="font-bold text-foreground">Remark</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {attendanceData?.map((entry) => (
-                  entry.isSalaryDay ? (
-                    <TableRow key={entry.id} className="bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 transition-all border-none shadow-inner">
-                      <TableCell className="font-bold py-6">Salary Pay Day</TableCell>
-                      <TableCell className="font-medium" colSpan={2}>Monthly Settlement</TableCell>
-                      <TableCell className="font-bold">Salary: {entry.salaryAmount?.toLocaleString()}</TableCell>
-                      <TableCell className="font-bold">Bonus: {entry.bonusAmount?.toLocaleString()}</TableCell>
-                      <TableCell className="font-bold">Dock: {entry.dockAmount?.toLocaleString()}</TableCell>
-                      <TableCell className="font-medium">Punctuality: {entry.punctualityBonus?.toLocaleString()}</TableCell>
-                    </TableRow>
-                  ) : (
-                    <TableRow key={entry.id} className="hover:bg-muted/30">
-                      <TableCell>{format(new Date(entry.date), "MMM dd, yyyy")}</TableCell>
-                      <TableCell>{entry.signInTime ? format(new Date(entry.signInTime), "hh:mm a") : "-"}</TableCell>
-                      <TableCell>{entry.signOutTime ? format(new Date(entry.signOutTime), "hh:mm a") : "-"}</TableCell>
-                      <TableCell className="font-medium">{entry.salesCount}</TableCell>
-                      <TableCell className="text-green-600 font-medium">+{entry.bonusAmount}</TableCell>
-                      <TableCell className="text-destructive font-medium">-{entry.dockAmount}</TableCell>
-                      <TableCell className="text-muted-foreground text-sm">{entry.remark || "-"}</TableCell>
-                    </TableRow>
-                  )
-                ))}
-                {(!attendanceData || attendanceData.length === 0) && (
-                  <TableRow>
-                    <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
-                      No attendance history found.
-                    </TableCell>
+          <CardContent className="p-0 overflow-x-auto">
+            <div className="min-w-[800px] sm:min-w-full">
+              <Table>
+                <TableHeader className="bg-blue-50/50">
+                  <TableRow className="border-none">
+                    <TableHead className="font-bold text-foreground py-3 px-4">Date</TableHead>
+                    <TableHead className="font-bold text-foreground py-3 px-4">Sign In Time</TableHead>
+                    <TableHead className="font-bold text-foreground py-3 px-4">Sign Out Time</TableHead>
+                    <TableHead className="font-bold text-foreground py-3 px-4">Sales</TableHead>
+                    <TableHead className="font-bold text-foreground py-3 px-4">Bonus</TableHead>
+                    <TableHead className="font-bold text-foreground py-3 px-4">Dock</TableHead>
+                    <TableHead className="font-bold text-foreground py-3 px-4">Remark</TableHead>
                   </TableRow>
-                )}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {attendanceData?.map((entry) => (
+                    entry.isSalaryDay ? (
+                      <TableRow key={entry.id} className="bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 transition-all border-none shadow-inner">
+                        <TableCell className="font-bold py-6 px-4">Salary Pay Day</TableCell>
+                        <TableCell className="font-medium px-4" colSpan={2}>Monthly Settlement</TableCell>
+                        <TableCell className="font-bold px-4">Salary: {entry.salaryAmount?.toLocaleString()}</TableCell>
+                        <TableCell className="font-bold px-4">Bonus: {entry.bonusAmount?.toLocaleString()}</TableCell>
+                        <TableCell className="font-bold px-4">Dock: {entry.dockAmount?.toLocaleString()}</TableCell>
+                        <TableCell className="font-medium px-4">Punctuality: {entry.punctualityBonus?.toLocaleString()}</TableCell>
+                      </TableRow>
+                    ) : (
+                      <TableRow key={entry.id} className="hover:bg-muted/30 border-b border-border/50">
+                        <TableCell className="py-4 px-4">{format(new Date(entry.date), "MMM dd, yyyy")}</TableCell>
+                        <TableCell className="py-4 px-4">{entry.signInTime ? format(new Date(entry.signInTime), "hh:mm a") : "-"}</TableCell>
+                        <TableCell className="py-4 px-4">{entry.signOutTime ? format(new Date(entry.signOutTime), "hh:mm a") : "-"}</TableCell>
+                        <TableCell className="font-medium py-4 px-4">{entry.salesCount}</TableCell>
+                        <TableCell className="text-green-600 font-medium py-4 px-4">+{entry.bonusAmount}</TableCell>
+                        <TableCell className="text-destructive font-medium py-4 px-4">-{entry.dockAmount}</TableCell>
+                        <TableCell className="text-muted-foreground text-sm py-4 px-4">{entry.remark || "-"}</TableCell>
+                      </TableRow>
+                    )
+                  ))}
+                  {(!attendanceData || attendanceData.length === 0) && (
+                    <TableRow>
+                      <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
+                        No attendance history found.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
           </CardContent>
         </Card>
       </div>

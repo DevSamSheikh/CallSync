@@ -119,10 +119,11 @@ export class DatabaseStorage implements IStorage {
 
     if (type === 'in') {
       if (existing) return existing;
+      const now = new Date();
       const [newAttendance] = await db.insert(attendance).values({
         userId,
-        signInTime: new Date(),
-        date: new Date(),
+        signInTime: now,
+        date: now,
       }).returning();
       return newAttendance;
     } else {

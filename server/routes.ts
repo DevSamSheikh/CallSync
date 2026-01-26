@@ -1,10 +1,11 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { db } from "./db";
 import { setupAuth } from "./auth";
 import { api } from "@shared/routes";
 import { z } from "zod";
-import { insertReportSchema } from "@shared/schema";
+import { insertReportSchema, attendance } from "@shared/schema";
 import passport from "passport";
 
 import type { User as DbUser } from "@shared/schema";
@@ -306,5 +307,58 @@ export async function seed() {
 
     await storage.bulkCreateReports(demoReports);
     console.log("Seeded demo reports");
+
+    // Seed Attendance
+    const demoAttendance = [
+      {
+        userId: demoAgent.id,
+        date: new Date("2026-01-01"),
+        isSalaryDay: true,
+        salaryAmount: 30000,
+        punctualityBonus: 5000,
+        bonusAmount: 33000,
+        dockAmount: 3000,
+        remark: "December Salary Payout",
+        salesCount: 0
+      },
+      {
+        userId: demoAgent.id,
+        date: new Date("2026-01-20"),
+        signInTime: new Date("2026-01-20 09:00:00"),
+        signOutTime: new Date("2026-01-20 18:00:00"),
+        salesCount: 2,
+        bonusAmount: 1000,
+        dockAmount: 0,
+        remark: "Full day",
+        isSalaryDay: false
+      },
+      {
+        userId: demoAgent.id,
+        date: new Date("2026-01-21"),
+        signInTime: new Date("2026-01-21 10:30:00"),
+        signOutTime: new Date("2026-01-21 18:00:00"),
+        salesCount: 1,
+        bonusAmount: 500,
+        dockAmount: 500,
+        remark: "500 - Late Sign In",
+        isSalaryDay: false
+      },
+      {
+        userId: demoAgent.id,
+        date: new Date("2026-01-22"),
+        signInTime: new Date("2026-01-22 09:00:00"),
+        signOutTime: new Date("2026-01-22 16:00:00"),
+        salesCount: 3,
+        bonusAmount: 1500,
+        dockAmount: 500,
+        remark: "500 - Early Sign Out",
+        isSalaryDay: false
+      }
+    ];
+
+    for (const a of demoAttendance) {
+      await db.insert(attendance).values(a);
+    }
+    console.log("Seeded demo attendance");
   }
 }
