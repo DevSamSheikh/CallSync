@@ -15,15 +15,21 @@ import { useAuth } from "@/hooks/use-auth";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertUserSchema, type InsertUser } from "@shared/schema";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -60,20 +66,25 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { 
-  Check, 
-  ChevronsUpDown, 
-  UserPlus, 
-  Shield, 
-  User as UserIcon, 
-  Search, 
-  Loader2, 
-  MoreVertical, 
-  Edit2, 
+import {
+  Check,
+  ChevronsUpDown,
+  UserPlus,
+  Shield,
+  User as UserIcon,
+  Search,
+  Loader2,
+  MoreVertical,
+  Edit2,
   Trash2,
-  Eye
+  Eye,
 } from "lucide-react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -99,7 +110,8 @@ export default function Users() {
   const [roleFilter, setRoleFilter] = useState("all");
 
   const isAdmin = currentUser?.role === "admin";
-  const isAdminOrDeo = currentUser?.role === "admin" || currentUser?.role === "deo";
+  const isAdminOrDeo =
+    currentUser?.role === "admin" || currentUser?.role === "deo";
 
   // Redirect if not authorized (handled client-side for UX, but API is also protected)
   if (!isAdminOrDeo) {
@@ -141,13 +153,13 @@ export default function Users() {
       username: user.username,
       role: user.role,
       location: user.location,
-      password: "" // Don't pre-fill password for security
+      password: "", // Don't pre-fill password for security
     });
     setEditOpen(true);
   };
 
   const filteredUsers = users?.filter((u: any) => {
-    const matchesSearch = 
+    const matchesSearch =
       u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       u.username.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = roleFilter === "all" || u.role === roleFilter;
@@ -158,10 +170,14 @@ export default function Users() {
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-3xl font-display font-bold tracking-tight">User Management</h2>
-          <p className="text-muted-foreground mt-1">Manage agent accounts and permissions</p>
+          <h2 className="text-3xl font-display font-bold tracking-tight">
+            User Management
+          </h2>
+          <p className="text-muted-foreground mt-1">
+            Manage agent accounts and permissions
+          </p>
         </div>
-        
+
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button className="shadow-lg shadow-primary/25">
@@ -174,7 +190,10 @@ export default function Users() {
               <DialogTitle>Create New User</DialogTitle>
             </DialogHeader>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-4">
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-4 pt-4"
+              >
                 <FormField
                   control={form.control}
                   name="name"
@@ -208,7 +227,11 @@ export default function Users() {
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} />
+                        <Input
+                          type="password"
+                          placeholder="••••••••"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -228,13 +251,13 @@ export default function Users() {
                               role="combobox"
                               className={cn(
                                 "w-full justify-between",
-                                !field.value && "text-muted-foreground"
+                                !field.value && "text-muted-foreground",
                               )}
                             >
                               {field.value
-                                ? ["agent", "deo", "admin"].find(
-                                    (role) => role === field.value
-                                  )?.toUpperCase()
+                                ? ["agent", "deo", "admin"]
+                                    .find((role) => role === field.value)
+                                    ?.toUpperCase()
                                 : "Select a role"}
                               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                             </Button>
@@ -254,7 +277,9 @@ export default function Users() {
                                 <Check
                                   className={cn(
                                     "mr-2 h-4 w-4",
-                                    field.value === "agent" ? "opacity-100" : "opacity-0"
+                                    field.value === "agent"
+                                      ? "opacity-100"
+                                      : "opacity-0",
                                   )}
                                 />
                                 Agent
@@ -268,7 +293,9 @@ export default function Users() {
                                 <Check
                                   className={cn(
                                     "mr-2 h-4 w-4",
-                                    field.value === "deo" ? "opacity-100" : "opacity-0"
+                                    field.value === "deo"
+                                      ? "opacity-100"
+                                      : "opacity-0",
                                   )}
                                 />
                                 Data Entry Operator
@@ -282,7 +309,9 @@ export default function Users() {
                                 <Check
                                   className={cn(
                                     "mr-2 h-4 w-4",
-                                    field.value === "admin" ? "opacity-100" : "opacity-0"
+                                    field.value === "admin"
+                                      ? "opacity-100"
+                                      : "opacity-0",
                                   )}
                                 />
                                 Admin
@@ -309,10 +338,14 @@ export default function Users() {
                               role="combobox"
                               className={cn(
                                 "w-full justify-between",
-                                !field.value && "text-muted-foreground"
+                                !field.value && "text-muted-foreground",
                               )}
                             >
-                              {field.value === "onsite" ? "On-site" : field.value === "wfh" ? "WFH" : "Select location"}
+                              {field.value === "onsite"
+                                ? "On-site"
+                                : field.value === "wfh"
+                                  ? "WFH"
+                                  : "Select location"}
                               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                             </Button>
                           </FormControl>
@@ -331,7 +364,9 @@ export default function Users() {
                                 <Check
                                   className={cn(
                                     "mr-2 h-4 w-4",
-                                    field.value === "onsite" ? "opacity-100" : "opacity-0"
+                                    field.value === "onsite"
+                                      ? "opacity-100"
+                                      : "opacity-0",
                                   )}
                                 />
                                 On-site
@@ -345,7 +380,9 @@ export default function Users() {
                                 <Check
                                   className={cn(
                                     "mr-2 h-4 w-4",
-                                    field.value === "wfh" ? "opacity-100" : "opacity-0"
+                                    field.value === "wfh"
+                                      ? "opacity-100"
+                                      : "opacity-0",
                                   )}
                                 />
                                 WFH
@@ -372,8 +409,8 @@ export default function Users() {
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input 
-            placeholder="Search by name or username..." 
+          <Input
+            placeholder="Search by name or username..."
             className="pl-10 bg-white-input"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -411,7 +448,10 @@ export default function Users() {
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                    <TableCell
+                      colSpan={6}
+                      className="h-24 text-center text-muted-foreground"
+                    >
                       <div className="flex justify-center items-center gap-2">
                         <Loader2 className="w-4 h-4 animate-spin" />
                         Loading users...
@@ -420,13 +460,19 @@ export default function Users() {
                   </TableRow>
                 ) : filteredUsers?.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                    <TableCell
+                      colSpan={6}
+                      className="h-24 text-center text-muted-foreground"
+                    >
                       No users found.
                     </TableCell>
                   </TableRow>
                 ) : (
                   filteredUsers?.map((user: any) => (
-                    <TableRow key={user.id} className="hover:bg-muted/30 transition-colors">
+                    <TableRow
+                      key={user.id}
+                      className="hover:bg-muted/30 transition-colors"
+                    >
                       <TableCell className="pl-6 font-medium">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
@@ -437,12 +483,14 @@ export default function Users() {
                       </TableCell>
                       <TableCell>{user.username}</TableCell>
                       <TableCell>
-                        <Badge 
-                          variant="secondary" 
+                        <Badge
+                          variant="secondary"
                           className={
-                            user.role === 'admin' ? "bg-purple-100 text-purple-700 hover:bg-purple-100" :
-                            user.role === 'deo' ? "bg-amber-100 text-amber-700 hover:bg-amber-100" :
-                            "bg-slate-100 text-slate-700 hover:bg-slate-100"
+                            user.role === "admin"
+                              ? "bg-purple-100 text-purple-700 hover:bg-purple-100"
+                              : user.role === "deo"
+                                ? "bg-amber-100 text-amber-700 hover:bg-amber-100"
+                                : "bg-slate-100 text-slate-700 hover:bg-slate-100"
                           }
                         >
                           {user.role}
@@ -454,7 +502,8 @@ export default function Users() {
                         </Badge>
                       </TableCell>
                       <TableCell className="text-sm">
-                        {reports?.filter(r => r.agentId === user.id).length || 0}
+                        {reports?.filter((r) => r.agentId === user.id).length ||
+                          0}
                       </TableCell>
                       <TableCell className="text-muted-foreground font-mono text-xs">
                         {user.lastIp || "N/A"}
@@ -463,33 +512,33 @@ export default function Users() {
                         #{user.id}
                       </TableCell>
                       <TableCell className="pr-6 text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-8 gap-1"
-                            onClick={() => window.open(`/dashboard?agentId=${user.id}&viewAsAgent=true`, '_blank')}
-                          >
-                            <Search className="w-3.5 h-3.5" />
-                            Preview
-                          </Button>
+                        <div className="flex justify-end gap-2  ml-auto ">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8"
+                              >
                                 <MoreVertical className="h-4 w-4" />
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               {isAdmin && (
-                                <DropdownMenuItem 
+                                <DropdownMenuItem
                                   className="gap-2"
-                                  onClick={() => window.open(`/dashboard?agentId=${user.id}&viewAsAgent=true`, '_blank')}
+                                  onClick={() =>
+                                    window.open(
+                                      `/dashboard?agentId=${user.id}&viewAsAgent=true`,
+                                      "_blank",
+                                    )
+                                  }
                                 >
                                   <Eye className="h-3.5 w-3.5" />
                                   Preview
                                 </DropdownMenuItem>
                               )}
-                              <DropdownMenuItem 
+                              <DropdownMenuItem
                                 className="gap-2"
                                 onClick={() => handleEdit(user)}
                               >
@@ -498,7 +547,7 @@ export default function Users() {
                               </DropdownMenuItem>
                               <AlertDialog>
                                 <AlertDialogTrigger asChild>
-                                  <DropdownMenuItem 
+                                  <DropdownMenuItem
                                     className="gap-2 text-destructive focus:text-destructive"
                                     onSelect={(e) => e.preventDefault()}
                                   >
@@ -508,14 +557,19 @@ export default function Users() {
                                 </AlertDialogTrigger>
                                 <AlertDialogContent>
                                   <AlertDialogHeader>
-                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                    <AlertDialogTitle>
+                                      Are you absolutely sure?
+                                    </AlertDialogTitle>
                                     <AlertDialogDescription>
-                                      This action cannot be undone. This will permanently delete the user account.
+                                      This action cannot be undone. This will
+                                      permanently delete the user account.
                                     </AlertDialogDescription>
                                   </AlertDialogHeader>
                                   <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                    <AlertDialogAction 
+                                    <AlertDialogCancel>
+                                      Cancel
+                                    </AlertDialogCancel>
+                                    <AlertDialogAction
                                       onClick={() => deleteUser.mutate(user.id)}
                                       className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                     >
@@ -536,10 +590,13 @@ export default function Users() {
           </div>
         </CardContent>
       </Card>
-      <Sheet open={editOpen} onOpenChange={(val) => {
-        setEditOpen(val);
-        if (!val) setSelectedUser(null);
-      }}>
+      <Sheet
+        open={editOpen}
+        onOpenChange={(val) => {
+          setEditOpen(val);
+          if (!val) setSelectedUser(null);
+        }}
+      >
         <SheetContent side="right" className="sm:max-w-md overflow-y-auto">
           <SheetHeader className="mb-6">
             <SheetTitle>Edit User: {selectedUser?.name}</SheetTitle>
@@ -577,9 +634,15 @@ export default function Users() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password (leave blank to keep current)</FormLabel>
+                    <FormLabel>
+                      Password (leave blank to keep current)
+                    </FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="••••••••" {...field} />
+                      <Input
+                        type="password"
+                        placeholder="••••••••"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -599,13 +662,13 @@ export default function Users() {
                             role="combobox"
                             className={cn(
                               "w-full justify-between",
-                              !field.value && "text-muted-foreground"
+                              !field.value && "text-muted-foreground",
                             )}
                           >
                             {field.value
-                              ? ["agent", "deo", "admin"].find(
-                                  (role) => role === field.value
-                                )?.toUpperCase()
+                              ? ["agent", "deo", "admin"]
+                                  .find((role) => role === field.value)
+                                  ?.toUpperCase()
                               : "Select a role"}
                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                           </Button>
@@ -625,7 +688,9 @@ export default function Users() {
                               <Check
                                 className={cn(
                                   "mr-2 h-4 w-4",
-                                  field.value === "agent" ? "opacity-100" : "opacity-0"
+                                  field.value === "agent"
+                                    ? "opacity-100"
+                                    : "opacity-0",
                                 )}
                               />
                               Agent
@@ -639,7 +704,9 @@ export default function Users() {
                               <Check
                                 className={cn(
                                   "mr-2 h-4 w-4",
-                                  field.value === "deo" ? "opacity-100" : "opacity-0"
+                                  field.value === "deo"
+                                    ? "opacity-100"
+                                    : "opacity-0",
                                 )}
                               />
                               Data Entry Operator
@@ -653,7 +720,9 @@ export default function Users() {
                               <Check
                                 className={cn(
                                   "mr-2 h-4 w-4",
-                                  field.value === "admin" ? "opacity-100" : "opacity-0"
+                                  field.value === "admin"
+                                    ? "opacity-100"
+                                    : "opacity-0",
                                 )}
                               />
                               Admin
@@ -680,10 +749,14 @@ export default function Users() {
                             role="combobox"
                             className={cn(
                               "w-full justify-between",
-                              !field.value && "text-muted-foreground"
+                              !field.value && "text-muted-foreground",
                             )}
                           >
-                            {field.value === "onsite" ? "On-site" : field.value === "wfh" ? "WFH" : "Select location"}
+                            {field.value === "onsite"
+                              ? "On-site"
+                              : field.value === "wfh"
+                                ? "WFH"
+                                : "Select location"}
                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                           </Button>
                         </FormControl>
@@ -702,7 +775,9 @@ export default function Users() {
                               <Check
                                 className={cn(
                                   "mr-2 h-4 w-4",
-                                  field.value === "onsite" ? "opacity-100" : "opacity-0"
+                                  field.value === "onsite"
+                                    ? "opacity-100"
+                                    : "opacity-0",
                                 )}
                               />
                               On-site
@@ -716,7 +791,9 @@ export default function Users() {
                               <Check
                                 className={cn(
                                   "mr-2 h-4 w-4",
-                                  field.value === "wfh" ? "opacity-100" : "opacity-0"
+                                  field.value === "wfh"
+                                    ? "opacity-100"
+                                    : "opacity-0",
                                 )}
                               />
                               WFH
@@ -730,12 +807,14 @@ export default function Users() {
                 )}
               />
               <div className="flex justify-end pt-4 gap-2">
-                <Button type="button" variant="outline" onClick={() => setEditOpen(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setEditOpen(false)}
+                >
                   Cancel
                 </Button>
-                <Button type="submit">
-                  Save Changes
-                </Button>
+                <Button type="submit">Save Changes</Button>
               </div>
             </form>
           </Form>
