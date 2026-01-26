@@ -217,11 +217,14 @@ export default function DataEntry() {
   );
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500 max-w-5xl mx-auto">
+    <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-500 max-w-5xl mx-auto px-4 sm:px-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-3xl font-display font-bold tracking-tight">Data Entry</h2>
-          <p className="text-muted-foreground mt-1">Submit new call reports or bulk upload</p>
+          <h1 className="text-3xl sm:text-4xl font-display font-bold tracking-tight">New Report</h1>
+          <p className="text-muted-foreground text-sm sm:text-base mt-1">Enter details for a single call record</p>
+        </div>
+        <div className="w-full sm:w-auto">
+          <AgentSelect />
         </div>
       </div>
 
@@ -244,60 +247,21 @@ export default function DataEntry() {
                     <CardTitle>New Report</CardTitle>
                     <CardDescription>Enter details for a single call record.</CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="pt-6">
                     <Form {...form}>
                       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                        <div className="grid md:grid-cols-2 gap-6">
-                          <FormField
-                            control={form.control}
-                            name="fronterName"
-                            render={({ field }) => (
-                              <FormItem className="md:col-span-2">
-                                <FormControl>
-                                  <div className="flex flex-col gap-1.5">
-                                    <div className="relative">
-                                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
-                                      <Select 
-                                        value={field.value} 
-                                        onValueChange={field.onChange}
-                                      >
-                                        <SelectTrigger className="pl-10 h-10 border-primary/20 bg-white">
-                                          <SelectValue placeholder="Search or select agent..." />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                          <div className="p-2 sticky top-0 bg-popover z-20 border-b">
-                                            <Input
-                                              placeholder="Search agents..."
-                                              className="h-8 text-xs"
-                                              onChange={(e) => setSearchTerm(e.target.value)}
-                                              onClick={(e) => e.stopPropagation()}
-                                            />
-                                          </div>
-                                          <div className="max-h-[200px] overflow-y-auto">
-                                            {agents.filter(a => 
-                                              a.name.toLowerCase().includes(searchTerm.toLowerCase())
-                                            ).map((agent) => (
-                                              <SelectItem key={agent.id} value={agent.name}>
-                                                {agent.name}
-                                              </SelectItem>
-                                            ))}
-                                          </div>
-                                        </SelectContent>
-                                      </Select>
-                                    </div>
-                                  </div>
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
                           <FormField
                             control={form.control}
                             name="phoneNo"
                             render={({ field }) => (
                               <FormItem>
                                 <FormControl>
-                                  <Input placeholder="Phone Number" {...field} className="h-10 border-primary/20" />
+                                  <Input 
+                                    placeholder="Phone Number" 
+                                    className="min-h-[50px] text-lg px-4 border-muted-foreground/20 rounded-xl"
+                                    {...field} 
+                                  />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -308,9 +272,13 @@ export default function DataEntry() {
                             name="accidentYear"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Accident Year</FormLabel>
                                 <FormControl>
-                                  <Input placeholder="2024" {...field} value={field.value || ''} className="h-10 border-primary/20" />
+                                  <Input 
+                                    placeholder="Accident Year" 
+                                    className="min-h-[50px] text-lg px-4 border-muted-foreground/20 rounded-xl"
+                                    {...field} 
+                                    value={field.value || ''}
+                                  />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -321,22 +289,15 @@ export default function DataEntry() {
                             name="state"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>State</FormLabel>
                                 <FormControl>
-                                  <Input placeholder="TX" {...field} value={field.value || ''} className="h-10 border-primary/20" />
+                                  <Input 
+                                    placeholder="State" 
+                                    className="min-h-[50px] text-lg px-4 border-muted-foreground/20 rounded-xl"
+                                    {...field} 
+                                    value={field.value || ''}
+                                  />
                                 </FormControl>
                                 <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="fronterName"
-                            render={({ field }) => (
-                              <FormItem className="hidden">
-                                <FormControl>
-                                  <Input {...field} />
-                                </FormControl>
                               </FormItem>
                             )}
                           />
@@ -345,9 +306,12 @@ export default function DataEntry() {
                             name="closerName"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Closer Name</FormLabel>
                                 <FormControl>
-                                  <Input placeholder="Closer Name" {...field} className="h-10 border-primary/20" />
+                                  <Input 
+                                    placeholder="Closer Name" 
+                                    className="min-h-[50px] text-lg px-4 border-muted-foreground/20 rounded-xl"
+                                    {...field} 
+                                  />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -358,15 +322,14 @@ export default function DataEntry() {
                             name="location"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Location</FormLabel>
                                 <Select onValueChange={field.onChange} value={field.value}>
                                   <FormControl>
-                                    <SelectTrigger className="h-10 border-primary/20">
-                                      <SelectValue placeholder="Select location" />
+                                    <SelectTrigger className="min-h-[50px] text-lg px-4 border-muted-foreground/20 rounded-xl">
+                                      <SelectValue placeholder="Select Location" />
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
-                                    <SelectItem value="onsite">On-site</SelectItem>
+                                    <SelectItem value="onsite">Onsite</SelectItem>
                                     <SelectItem value="wfh">WFH</SelectItem>
                                   </SelectContent>
                                 </Select>
@@ -378,17 +341,16 @@ export default function DataEntry() {
                             control={form.control}
                             name="isSale"
                             render={({ field }) => (
-                              <FormItem className="flex flex-row items-center justify-between rounded-lg border border-primary/20 p-3 shadow-sm h-10 bg-white">
-                                <div className="space-y-0.5">
-                                  <FormLabel className="text-sm">Sale</FormLabel>
-                                </div>
+                              <FormItem className="flex items-center justify-between min-h-[50px] px-4 border border-muted-foreground/20 rounded-xl">
+                                <span className="text-lg font-medium text-foreground">Transfer</span>
                                 <FormControl>
                                   <Switch
                                     checked={field.value}
                                     onCheckedChange={field.onChange}
-                                    className="data-[state=checked]:bg-primary"
+                                    className="data-[state=checked]:bg-[#189bfe]"
                                   />
                                 </FormControl>
+                                <span className="text-lg font-medium text-foreground">Sale</span>
                               </FormItem>
                             )}
                           />
@@ -399,9 +361,14 @@ export default function DataEntry() {
                                 name="amount"
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel>Amount</FormLabel>
                                     <FormControl>
-                                      <Input type="number" placeholder="0" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} className="h-10 border-primary/20" />
+                                      <Input 
+                                        type="number" 
+                                        placeholder="Sale Amount" 
+                                        className="min-h-[50px] text-lg px-4 border-muted-foreground/20 rounded-xl"
+                                        {...field} 
+                                        onChange={e => field.onChange(e.target.valueAsNumber)} 
+                                      />
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
@@ -412,9 +379,14 @@ export default function DataEntry() {
                                 name="bonusAmount"
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel>Bonus Amount</FormLabel>
                                     <FormControl>
-                                      <Input type="number" placeholder="0" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} className="h-10 border-primary/20" />
+                                      <Input 
+                                        type="number" 
+                                        placeholder="Bonus Amount" 
+                                        className="min-h-[50px] text-lg px-4 border-muted-foreground/20 rounded-xl"
+                                        {...field} 
+                                        onChange={e => field.onChange(e.target.valueAsNumber)} 
+                                      />
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
@@ -423,16 +395,18 @@ export default function DataEntry() {
                             </>
                           )}
                         </div>
+
+                        <div className="space-y-2">
+                          <h3 className="text-lg font-semibold px-1">Remarks</h3>
                           <FormField
                             control={form.control}
                             name="remarks"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Remarks</FormLabel>
                                 <FormControl>
                                   <Textarea 
-                                    placeholder="Call notes, customer sentiment, etc." 
-                                    className="resize-none h-24 border-primary/20"
+                                    placeholder="Enter call details, customer response, etc." 
+                                    className="min-h-[150px] text-lg p-4 border-muted-foreground/20 rounded-xl resize-none"
                                     {...field} 
                                     value={field.value || ''}
                                   />
@@ -441,11 +415,13 @@ export default function DataEntry() {
                               </FormItem>
                             )}
                           />
-                        <div className="flex justify-end gap-3">
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4">
                           <Button 
                             type="button" 
                             variant="outline"
-                            className="border-primary/20"
+                            className="min-h-[50px] text-lg px-8 border-muted-foreground/20 rounded-xl hover:bg-muted/50 w-full sm:w-auto"
                             onClick={() => form.reset({
                               phoneNo: "",
                               accidentYear: "",
@@ -465,8 +441,7 @@ export default function DataEntry() {
                           </Button>
                           <Button 
                             type="submit" 
-                            size="lg" 
-                            className="shadow-lg shadow-primary/25"
+                            className="min-h-[50px] text-lg px-12 bg-[#189bfe] hover:bg-[#189bfe]/90 text-white shadow-[0_3px_0_0_#0d7cd4] active:translate-y-[1px] active:shadow-none transition-all rounded-xl w-full sm:w-auto"
                             disabled={createReport.isPending}
                           >
                             {createReport.isPending ? "Submitting..." : "Submit Report"}
