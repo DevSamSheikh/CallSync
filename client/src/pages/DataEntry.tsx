@@ -250,12 +250,26 @@ export default function DataEntry() {
                         <div className="grid md:grid-cols-2 gap-6">
                           <FormField
                             control={form.control}
+                            name="fronterName"
+                            render={({ field }) => (
+                              <FormItem className="md:col-span-2">
+                                <FormControl>
+                                  <div className="relative">
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
+                                    <AgentSelect />
+                                  </div>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
                             name="phoneNo"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Phone Number</FormLabel>
                                 <FormControl>
-                                  <Input placeholder="123-456-7890" {...field} className="h-10 border-primary/20" />
+                                  <Input placeholder="Phone Number" {...field} className="h-10 border-primary/20" />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -438,9 +452,12 @@ export default function DataEntry() {
 
               <TabsContent value="bulk">
                 <Card className="border-none shadow-lg">
-                  <CardHeader>
-                    <CardTitle>Bulk Upload</CardTitle>
-                    <CardDescription>Upload a CSV file containing multiple call records.</CardDescription>
+                  <CardHeader className="flex flex-row items-center justify-between gap-4">
+                    <div className="flex-1">
+                      <CardTitle>Bulk Upload</CardTitle>
+                      <CardDescription>Upload a CSV file containing multiple call records.</CardDescription>
+                    </div>
+                    <AgentSelect />
                   </CardHeader>
                   <CardContent>
                     <div 
@@ -507,20 +524,21 @@ export default function DataEntry() {
                   <TableHeader className="bg-muted/50">
                     <TableRow className="h-10">
                       <TableHead className="text-xs pl-4">Phone</TableHead>
-                      <TableHead className="text-xs">Closer</TableHead>
+                      <TableHead className="text-xs">Agent</TableHead>
+                      <TableHead className="text-xs">Type</TableHead>
                       <TableHead className="text-xs text-right pr-4">Date</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {isLoadingReports ? (
                       <TableRow>
-                        <TableCell colSpan={3} className="h-20 text-center">
+                        <TableCell colSpan={4} className="h-20 text-center">
                           <Loader2 className="w-4 h-4 animate-spin mx-auto" />
                         </TableCell>
                       </TableRow>
                     ) : filteredReports?.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={3} className="h-20 text-center text-xs text-muted-foreground">
+                        <TableCell colSpan={4} className="h-20 text-center text-xs text-muted-foreground">
                           No recent entries
                         </TableCell>
                       </TableRow>
@@ -529,12 +547,15 @@ export default function DataEntry() {
                         <TableRow key={r.id} className="h-10 hover:bg-muted/30">
                           <TableCell className="text-xs pl-4 font-medium">{r.phoneNo}</TableCell>
                           <TableCell className="text-xs">
-                            <Badge variant="outline" className="text-[10px] px-1 h-4">
-                              {r.closerName}
+                            <span className="text-[10px]">{r.fronterName}</span>
+                          </TableCell>
+                          <TableCell className="text-xs">
+                            <Badge variant={r.isSale ? "default" : "secondary"} className="text-[10px] px-1 h-4">
+                              {r.isSale ? "Sale" : "Transfer"}
                             </Badge>
                           </TableCell>
                           <TableCell className="text-xs text-right pr-4 text-muted-foreground">
-                            {r.timestamp ? format(new Date(r.timestamp), "MMM dd") : "-"}
+                            {r.timestamp ? format(new Date(r.timestamp), "MMM dd, HH:mm") : "-"}
                           </TableCell>
                         </TableRow>
                       ))
