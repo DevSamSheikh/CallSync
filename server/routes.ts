@@ -144,6 +144,21 @@ export async function registerRoutes(
     res.json(stats);
   });
 
+  // === Attendance API ===
+  app.get("/api/attendance", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    const data = await storage.getAttendance(req.user!.id);
+    res.json(data);
+  });
+
+  app.post("/api/attendance/mark", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    const { type } = req.body;
+    if (type !== 'in' && type !== 'out') return res.status(400).json({ message: "Invalid type" });
+    const data = await storage.markAttendance(req.user.id, type);
+    res.json(data);
+  });
+
   // Seed data on startup
   await seed();
 

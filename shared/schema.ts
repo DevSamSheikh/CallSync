@@ -33,6 +33,21 @@ export const reports = pgTable("reports", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const attendance = pgTable("attendance", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  date: timestamp("date").notNull().defaultNow(),
+  signInTime: timestamp("sign_in_time"),
+  signOutTime: timestamp("sign_out_time"),
+  salesCount: integer("sales_count").notNull().default(0),
+  bonusAmount: integer("bonus_amount").notNull().default(0),
+  dockAmount: integer("dock_amount").notNull().default(0),
+  remark: text("remark"),
+  isSalaryDay: boolean("is_salary_day").notNull().default(false),
+  salaryAmount: integer("salary_amount"),
+  punctualityBonus: integer("punctuality_bonus"),
+});
+
 // === SCHEMAS ===
 
 export const insertUserSchema = createInsertSchema(users).pick({
@@ -54,6 +69,10 @@ export const insertReportSchema = createInsertSchema(reports).omit({
   bonusAmount: z.coerce.number().optional(),
 });
 
+export const insertAttendanceSchema = createInsertSchema(attendance).omit({
+  id: true,
+});
+
 // === TYPES ===
 
 export type User = typeof users.$inferSelect;
@@ -61,6 +80,9 @@ export type InsertUser = z.infer<typeof insertUserSchema>;
 
 export type Report = typeof reports.$inferSelect;
 export type InsertReport = z.infer<typeof insertReportSchema>;
+
+export type Attendance = typeof attendance.$inferSelect;
+export type InsertAttendance = z.infer<typeof insertAttendanceSchema>;
 
 // Analytics Types
 export type PerformanceStats = {

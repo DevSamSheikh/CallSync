@@ -11,6 +11,7 @@ import Dashboard from "@/pages/Dashboard";
 import Reports from "@/pages/Reports";
 import DataEntry from "@/pages/DataEntry";
 import Users from "@/pages/Users";
+import Financials from "@/pages/Financials";
 import { Loader2 } from "lucide-react";
 
 // Protected Route Wrapper
@@ -64,6 +65,10 @@ function Router() {
       
       <Route path="/users">
         <ProtectedRoute component={Users} />
+      </Route>
+
+      <Route path="/financials">
+        <ProtectedRoute component={Financials} />
       </Route>
 
       <Route path="/">

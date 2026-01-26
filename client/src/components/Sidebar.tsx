@@ -5,6 +5,7 @@ import {
   FileText,
   PlusCircle,
   Users,
+  Wallet,
   LogOut,
   Menu,
   X,
@@ -25,6 +26,7 @@ export function Sidebar() {
 
   const navItems = [
     { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    { label: "Financials", href: "/financials", icon: Wallet },
     { label: "Reports", href: "/reports", icon: FileText },
     ...(isAdminOrDeo
       ? [

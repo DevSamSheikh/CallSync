@@ -1,5 +1,5 @@
 import { db } from "./db";
-import { users, reports, type User, type InsertUser, type Report, type InsertReport } from "@shared/schema";
+import { users, reports, attendance, type User, type InsertUser, type Report, type InsertReport, type Attendance, type InsertAttendance } from "@shared/schema";
 import { eq, and, gte, lte, desc, sql } from "drizzle-orm";
 
 export interface IStorage {
@@ -16,6 +16,11 @@ export interface IStorage {
   deleteReport(id: number): Promise<void>;
   deleteUser(id: number): Promise<void>;
   
+  // Attendance
+  getAttendance(userId: number): Promise<Attendance[]>;
+  markAttendance(userId: number, type: 'in' | 'out'): Promise<Attendance>;
+  getLatestAttendance(userId: number): Promise<Attendance | undefined>;
+
   // Analytics
   getAnalytics(filters?: { location?: string; days?: number }): Promise<{
     dailyStats: { date: string; transfers: number; sales: number }[];
@@ -88,6 +93,53 @@ export class DatabaseStorage implements IStorage {
 
   async deleteUser(id: number): Promise<void> {
     await db.delete(users).where(eq(users.id, id));
+  }
+
+  async getAttendance(userId: number): Promise<Attendance[]> {
+    return await db.select().from(attendance)
+      .where(eq(attendance.userId, userId))
+      .orderBy(desc(attendance.date));
+  }
+
+  async getLatestAttendance(userId: number): Promise<Attendance | undefined> {
+    const [latest] = await db.select().from(attendance)
+      .where(eq(attendance.userId, userId))
+      .orderBy(desc(attendance.date))
+      .limit(1);
+    return latest;
+  }
+
+  async markAttendance(userId: number, type: 'in' | 'out'): Promise<Attendance> {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const [existing] = await db.select().from(attendance)
+      .where(and(eq(attendance.userId, userId), gte(attendance.date, today)))
+      .limit(1);
+
+    if (type === 'in') {
+      if (existing) return existing;
+      const [newAttendance] = await db.insert(attendance).values({
+        userId,
+        signInTime: new Date(),
+        date: new Date(),
+      }).returning();
+      return newAttendance;
+    } else {
+      if (!existing) {
+        const [newAttendance] = await db.insert(attendance).values({
+          userId,
+          signOutTime: new Date(),
+          date: new Date(),
+        }).returning();
+        return newAttendance;
+      }
+      const [updated] = await db.update(attendance)
+        .set({ signOutTime: new Date() })
+        .where(eq(attendance.id, existing.id))
+        .returning();
+      return updated;
+    }
   }
 
   async getAnalytics(filters?: { location?: string; days?: number }) {
