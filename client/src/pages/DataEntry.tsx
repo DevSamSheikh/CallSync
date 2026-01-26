@@ -254,9 +254,37 @@ export default function DataEntry() {
                             render={({ field }) => (
                               <FormItem className="md:col-span-2">
                                 <FormControl>
-                                  <div className="relative">
-                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
-                                    <AgentSelect />
+                                  <div className="flex flex-col gap-1.5">
+                                    <div className="relative">
+                                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
+                                      <Select 
+                                        value={field.value} 
+                                        onValueChange={field.onChange}
+                                      >
+                                        <SelectTrigger className="pl-10 h-10 border-primary/20 bg-white">
+                                          <SelectValue placeholder="Search or select agent..." />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <div className="p-2 sticky top-0 bg-popover z-20 border-b">
+                                            <Input
+                                              placeholder="Search agents..."
+                                              className="h-8 text-xs"
+                                              onChange={(e) => setSearchTerm(e.target.value)}
+                                              onClick={(e) => e.stopPropagation()}
+                                            />
+                                          </div>
+                                          <div className="max-h-[200px] overflow-y-auto">
+                                            {agents.filter(a => 
+                                              a.name.toLowerCase().includes(searchTerm.toLowerCase())
+                                            ).map((agent) => (
+                                              <SelectItem key={agent.id} value={agent.name}>
+                                                {agent.name}
+                                              </SelectItem>
+                                            ))}
+                                          </div>
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
                                   </div>
                                 </FormControl>
                                 <FormMessage />
@@ -457,7 +485,38 @@ export default function DataEntry() {
                       <CardTitle>Bulk Upload</CardTitle>
                       <CardDescription>Upload a CSV file containing multiple call records.</CardDescription>
                     </div>
-                    <AgentSelect />
+                    <div className="flex flex-col gap-1.5 w-[240px]">
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
+                        <Select 
+                          value={form.watch("fronterName")} 
+                          onValueChange={(val) => form.setValue("fronterName", val)}
+                        >
+                          <SelectTrigger className="pl-10 h-10 border-primary/20 bg-white">
+                            <SelectValue placeholder="Search or select agent..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <div className="p-2 sticky top-0 bg-popover z-20 border-b">
+                              <Input
+                                placeholder="Search agents..."
+                                className="h-8 text-xs"
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                            </div>
+                            <div className="max-h-[200px] overflow-y-auto">
+                              {agents.filter(a => 
+                                a.name.toLowerCase().includes(searchTerm.toLowerCase())
+                              ).map((agent) => (
+                                <SelectItem key={agent.id} value={agent.name}>
+                                  {agent.name}
+                                </SelectItem>
+                              ))}
+                            </div>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
                   </CardHeader>
                   <CardContent>
                     <div 
@@ -518,15 +577,15 @@ export default function DataEntry() {
                 />
               </div>
             </div>
-            <Card className="border-none shadow-md overflow-hidden">
-              <CardContent className="p-0">
-                <Table>
+            <Card className="border-none shadow-md">
+              <CardContent className="p-0 overflow-hidden">
+                <Table className="table-fixed w-full">
                   <TableHeader className="bg-muted/50">
                     <TableRow className="h-10">
-                      <TableHead className="text-xs pl-4">Phone</TableHead>
-                      <TableHead className="text-xs">Agent</TableHead>
-                      <TableHead className="text-xs">Type</TableHead>
-                      <TableHead className="text-xs text-right pr-4">Date</TableHead>
+                      <TableHead className="text-[11px] pl-3 w-[100px]">Phone</TableHead>
+                      <TableHead className="text-[11px] w-[80px]">Agent</TableHead>
+                      <TableHead className="text-[11px] w-[70px]">Type</TableHead>
+                      <TableHead className="text-[11px] text-right pr-3 w-[90px]">Date</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -538,23 +597,23 @@ export default function DataEntry() {
                       </TableRow>
                     ) : filteredReports?.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={4} className="h-20 text-center text-xs text-muted-foreground">
+                        <TableCell colSpan={4} className="h-20 text-center text-[11px] text-muted-foreground">
                           No recent entries
                         </TableCell>
                       </TableRow>
                     ) : (
                       filteredReports?.map((r) => (
-                        <TableRow key={r.id} className="h-10 hover:bg-muted/30">
-                          <TableCell className="text-xs pl-4 font-medium">{r.phoneNo}</TableCell>
-                          <TableCell className="text-xs">
-                            <span className="text-[10px]">{r.fronterName}</span>
+                        <TableRow key={r.id} className="h-12 hover:bg-muted/30">
+                          <TableCell className="text-[11px] pl-3 font-medium truncate">{r.phoneNo}</TableCell>
+                          <TableCell className="text-[11px] truncate">
+                            {r.fronterName}
                           </TableCell>
-                          <TableCell className="text-xs">
-                            <Badge variant={r.isSale ? "default" : "secondary"} className="text-[10px] px-1 h-4">
+                          <TableCell className="text-[11px]">
+                            <Badge variant={r.isSale ? "default" : "secondary"} className="text-[9px] px-1 h-4 scale-90 origin-left">
                               {r.isSale ? "Sale" : "Transfer"}
                             </Badge>
                           </TableCell>
-                          <TableCell className="text-xs text-right pr-4 text-muted-foreground">
+                          <TableCell className="text-[11px] text-right pr-3 text-muted-foreground whitespace-nowrap">
                             {r.timestamp ? format(new Date(r.timestamp), "MMM dd, HH:mm") : "-"}
                           </TableCell>
                         </TableRow>
