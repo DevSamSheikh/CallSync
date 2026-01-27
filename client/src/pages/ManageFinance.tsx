@@ -1,7 +1,7 @@
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Attendance, Report, User } from "@shared/schema";
-import { Card, CardContent } from "@/components/ui/card";
+import { Attendance, Report, User, insertAttendanceSchema } from "@shared/schema";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
   Table, 
@@ -19,17 +19,71 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { format } from "date-fns";
-import { Banknote, Clock, Gift, AlertTriangle, Search, Filter } from "lucide-react";
+import { Banknote, Clock, Gift, AlertTriangle, Search, Filter, Edit2, Trash2 } from "lucide-react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { 
+  Tooltip, 
+  TooltipContent, 
+  TooltipProvider, 
+  TooltipTrigger 
+} from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
+
+function TruncatedTitle({ title, icon: Icon, color }: { title: string; icon?: any; color?: string }) {
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="text-sm font-medium flex items-center gap-2 truncate cursor-default">
+            {Icon && <Icon className={cn("w-4 h-4 shrink-0", color)} />}
+            <span className="truncate">{title}</span>
+          </div>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>{title}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
 
 export default function ManageFinance() {
   const { user: currentUser } = useAuth();
   const { toast } = useToast();
   const [selectedAgent, setSelectedAgent] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [editOpen, setEditOpen] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState<Attendance | null>(null);
 
   const { data: allUsers } = useQuery<User[]>({
     queryKey: ["/api/users"],
@@ -42,6 +96,55 @@ export default function ManageFinance() {
   const { data: allReports } = useQuery<Report[]>({
     queryKey: ["/api/reports"],
   });
+
+  const form = useForm({
+    resolver: zodResolver(insertAttendanceSchema),
+    defaultValues: {
+      userId: 0,
+      date: new Date(),
+      workedHours: 0,
+      salesCount: 0,
+      bonusAmount: 0,
+      dockAmount: 0,
+      remark: "",
+    },
+  });
+
+  const updateAttendance = useMutation({
+    mutationFn: async (data: any) => {
+      const res = await apiRequest("PATCH", `/api/attendance/${selectedRecord?.id}`, data);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/attendance"] });
+      toast({ title: "Success", description: "Financial record updated" });
+      setEditOpen(false);
+    },
+  });
+
+  const deleteAttendance = useMutation({
+    mutationFn: async (id: number) => {
+      await apiRequest("DELETE", `/api/attendance/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/attendance"] });
+      toast({ title: "Deleted", description: "Record removed" });
+    },
+  });
+
+  const handleEdit = (record: Attendance) => {
+    setSelectedRecord(record);
+    form.reset({
+      userId: record.userId,
+      date: new Date(record.date),
+      workedHours: record.workedHours || 0,
+      salesCount: record.salesCount || 0,
+      bonusAmount: record.bonusAmount || 0,
+      dockAmount: record.dockAmount || 0,
+      remark: record.remark || "",
+    });
+    setEditOpen(true);
+  };
 
   const agents = useMemo(() => 
     allUsers?.filter(u => u.role === 'agent') || [], 
@@ -60,7 +163,7 @@ export default function ManageFinance() {
       const term = searchTerm.toLowerCase();
       filtered = filtered.filter(a => {
         const agent = allUsers?.find(u => u.id === a.userId);
-        return agent?.name.toLowerCase().includes(term) || agent?.username.toLowerCase().includes(term);
+        return agent?.name.toLowerCase().includes(term) || agent?.username.toLowerCase().includes(term) || a.remark?.toLowerCase().includes(term);
       });
     }
     
@@ -91,37 +194,37 @@ export default function ManageFinance() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-        <Card className="border-none shadow-sm hover-elevate transition-all overflow-visible">
-          <CardContent className="p-6 flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Total Punctuality</p>
-              <p className="text-2xl font-bold mt-1">{globalStats.punctuality.toLocaleString()}</p>
+        <Card className="border-none shadow-sm hover-elevate transition-all overflow-hidden">
+          <CardContent className="p-6 flex items-center justify-between gap-4">
+            <div className="min-w-0 flex-1">
+              <TruncatedTitle title="Total Punctuality" color="text-muted-foreground" />
+              <p className="text-2xl font-bold mt-1 truncate">{globalStats.punctuality.toLocaleString()}</p>
             </div>
-            <div className="p-3 bg-cyan-50 text-cyan-500 rounded-xl">
+            <div className="p-3 bg-cyan-50 text-cyan-500 rounded-xl shrink-0">
               <Clock className="w-6 h-6" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-none shadow-sm hover-elevate transition-all overflow-visible">
-          <CardContent className="p-6 flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Total Bonuses</p>
-              <p className="text-2xl font-bold mt-1">{globalStats.bonus.toLocaleString()}</p>
+        <Card className="border-none shadow-sm hover-elevate transition-all overflow-hidden">
+          <CardContent className="p-6 flex items-center justify-between gap-4">
+            <div className="min-w-0 flex-1">
+              <TruncatedTitle title="Total Bonuses" color="text-muted-foreground" />
+              <p className="text-2xl font-bold mt-1 truncate">{globalStats.bonus.toLocaleString()}</p>
             </div>
-            <div className="p-3 bg-sky-50 text-sky-500 rounded-xl">
+            <div className="p-3 bg-sky-50 text-sky-500 rounded-xl shrink-0">
               <Gift className="w-6 h-6" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-none shadow-sm hover-elevate transition-all overflow-visible">
-          <CardContent className="p-6 flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Total Docks</p>
-              <p className="text-2xl font-bold mt-1">{globalStats.docks.toLocaleString()}</p>
+        <Card className="border-none shadow-sm hover-elevate transition-all overflow-hidden">
+          <CardContent className="p-6 flex items-center justify-between gap-4">
+            <div className="min-w-0 flex-1">
+              <TruncatedTitle title="Total Docks" color="text-muted-foreground" />
+              <p className="text-2xl font-bold mt-1 truncate">{globalStats.docks.toLocaleString()}</p>
             </div>
-            <div className="p-3 bg-blue-50 text-blue-600 rounded-xl">
+            <div className="p-3 bg-blue-50 text-blue-600 rounded-xl shrink-0">
               <AlertTriangle className="w-6 h-6" />
             </div>
           </CardContent>
@@ -188,9 +291,40 @@ export default function ManageFinance() {
                         <TableCell className="text-destructive font-medium py-4 px-4">-{entry.dockAmount}</TableCell>
                         <TableCell className="text-muted-foreground text-sm py-4 px-4 max-w-[150px] truncate">{entry.remark || "-"}</TableCell>
                         <TableCell className="py-4 px-4">
-                          <Button variant="ghost" size="sm" className="h-8 hover-elevate">
-                            Edit
-                          </Button>
+                          <div className="flex items-center gap-2">
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-8 w-8 hover-elevate"
+                              onClick={() => handleEdit(entry)}
+                            >
+                              <Edit2 className="h-4 w-4" />
+                            </Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-[#E43636] hover-elevate">
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    This will permanently delete this financial record.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction 
+                                    onClick={() => deleteAttendance.mutate(entry.id)}
+                                    className="bg-[#E43636]"
+                                  >
+                                    Delete
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
                         </TableCell>
                       </TableRow>
                     );
@@ -208,6 +342,86 @@ export default function ManageFinance() {
           </CardContent>
         </Card>
       </div>
+
+      <Sheet open={editOpen} onOpenChange={setEditOpen}>
+        <SheetContent side="right" className="sm:max-w-md overflow-y-auto">
+          <SheetHeader className="mb-6">
+            <SheetTitle>Edit Financial Record</SheetTitle>
+          </SheetHeader>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(data => updateAttendance.mutate(data))} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="workedHours"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Worked Hours</FormLabel>
+                    <FormControl>
+                      <Input type="number" step="0.1" {...field} onChange={e => field.onChange(parseFloat(e.target.value))} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="salesCount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Sales Count</FormLabel>
+                    <FormControl>
+                      <Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value))} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="bonusAmount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Bonus Amount</FormLabel>
+                    <FormControl>
+                      <Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value))} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="dockAmount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Dock Amount</FormLabel>
+                    <FormControl>
+                      <Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value))} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="remark"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Remark</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit" className="w-full" disabled={updateAttendance.isPending}>
+                {updateAttendance.isPending ? "Updating..." : "Update Record"}
+              </Button>
+            </form>
+          </Form>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

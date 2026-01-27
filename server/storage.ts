@@ -101,6 +101,16 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(attendance.date));
   }
 
+  async updateAttendance(id: number, data: Partial<Attendance>): Promise<Attendance> {
+    const [updated] = await db.update(attendance).set(data).where(eq(attendance.id, id)).returning();
+    if (!updated) throw new Error("Attendance record not found");
+    return updated;
+  }
+
+  async deleteAttendance(id: number): Promise<void> {
+    await db.delete(attendance).where(eq(attendance.id, id));
+  }
+
   async getLatestAttendance(userId: number): Promise<Attendance | undefined> {
     const [latest] = await db.select().from(attendance)
       .where(eq(attendance.userId, userId))

@@ -165,16 +165,30 @@ export async function registerRoutes(
     res.json(allHistory.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
   });
 
-  app.post("/api/attendance/mark", async (req, res) => {
+  app.patch("/api/attendance/:id", async (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
-    const { type } = req.body;
-    if (type !== 'in' && type !== 'out') return res.status(400).json({ message: "Invalid type" });
+    if (req.user!.role !== 'admin') return res.sendStatus(403);
+    
     try {
-      const data = await storage.markAttendance(req.user.id, type);
-      res.json(data);
-    } catch (error: any) {
-      console.error("Attendance marking error:", error);
-      res.status(500).json({ message: error.message || "Internal server error" });
+      const id = parseInt(req.params.id);
+      const updateData = req.body;
+      const updated = await storage.updateAttendance(id, updateData);
+      res.json(updated);
+    } catch (e: any) {
+      res.status(500).json({ message: e.message });
+    }
+  });
+
+  app.delete("/api/attendance/:id", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    if (req.user!.role !== 'admin') return res.sendStatus(403);
+    
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteAttendance(id);
+      res.sendStatus(200);
+    } catch (e: any) {
+      res.status(500).json({ message: e.message });
     }
   });
 
