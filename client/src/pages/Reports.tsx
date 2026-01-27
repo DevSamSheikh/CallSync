@@ -349,7 +349,7 @@ export default function Reports() {
                               <DropdownMenuContent align="end" className="w-[160px]">
                                 <DropdownMenuItem 
                                   className="gap-2"
-                                  onClick={() => handleEdit(report)}
+                                  onClick={() => window.location.href = `/profile/${report.agentId}`}
                                 >
                                   <Eye className="h-3.5 w-3.5" />
                                   Preview

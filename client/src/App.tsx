@@ -13,6 +13,7 @@ import DataEntry from "@/pages/DataEntry";
 import Users from "@/pages/Users";
 import Financials from "@/pages/Financials";
 import ManageFinance from "@/pages/ManageFinance";
+import AgentProfile from "@/pages/AgentProfile";
 import { Loader2 } from "lucide-react";
 
 // Protected Route Wrapper
@@ -74,6 +75,10 @@ function Router() {
 
       <Route path="/manage-finance">
         <ProtectedRoute component={ManageFinance} />
+      </Route>
+
+      <Route path="/profile/:id">
+        <ProtectedRoute component={AgentProfile} />
       </Route>
 
       <Route path="/">

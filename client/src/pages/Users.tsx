@@ -528,10 +528,7 @@ export default function Users() {
                                 <DropdownMenuItem
                                   className="gap-2"
                                   onClick={() =>
-                                    window.open(
-                                      `/dashboard?agentId=${user.id}&viewAsAgent=true`,
-                                      "_blank",
-                                    )
+                                    setLocation(`/profile/${user.id}`)
                                   }
                                 >
                                   <Eye className="h-3.5 w-3.5" />
