@@ -148,8 +148,21 @@ export async function registerRoutes(
   // === Attendance API ===
   app.get("/api/attendance", async (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
-    const data = await storage.getAttendance(req.user!.id);
-    res.json(data);
+    const history = await storage.getAttendance(req.user!.id);
+    res.json(history);
+  });
+
+  app.get("/api/admin/attendance", async (req, res) => {
+    if (!req.isAuthenticated() || req.user!.role === 'agent') return res.sendStatus(403);
+    const users = await storage.getAllUsers();
+    const allHistory = [];
+    for (const user of users) {
+      if (user.role === 'agent') {
+        const history = await storage.getAttendance(user.id);
+        allHistory.push(...history);
+      }
+    }
+    res.json(allHistory.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
   });
 
   app.post("/api/attendance/mark", async (req, res) => {

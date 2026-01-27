@@ -6,6 +6,7 @@ import {
   PlusCircle,
   Users,
   Wallet,
+  Banknote,
   LogOut,
   Menu,
   X,
