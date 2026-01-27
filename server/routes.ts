@@ -169,8 +169,13 @@ export async function registerRoutes(
     if (!req.isAuthenticated()) return res.sendStatus(401);
     const { type } = req.body;
     if (type !== 'in' && type !== 'out') return res.status(400).json({ message: "Invalid type" });
-    const data = await storage.markAttendance(req.user.id, type);
-    res.json(data);
+    try {
+      const data = await storage.markAttendance(req.user.id, type);
+      res.json(data);
+    } catch (error: any) {
+      console.error("Attendance marking error:", error);
+      res.status(500).json({ message: error.message || "Internal server error" });
+    }
   });
 
   // Seed data on startup
