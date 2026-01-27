@@ -83,7 +83,7 @@ export default function AgentProfile() {
   const last7Days = Array.from({ length: 7 }, (_, i) => {
     const d = subDays(new Date(), i);
     const dateStr = format(d, "yyyy-MM-dd");
-    const dayReports = reports?.filter(r => format(new Date(r.timestamp), "yyyy-MM-dd") === dateStr) || [];
+    const dayReports = reports?.filter(r => r.timestamp && format(new Date(r.timestamp), "yyyy-MM-dd") === dateStr) || [];
     return {
       date: format(d, "MMM dd"),
       calls: dayReports.length,
@@ -301,7 +301,7 @@ export default function AgentProfile() {
                   {reports?.map((report) => (
                     <TableRow key={report.id} className="hover:bg-muted/50 transition-colors">
                       <TableCell className="text-xs font-mono text-muted-foreground">
-                        {format(new Date(report.timestamp), "MMM dd, HH:mm")}
+                        {report.timestamp ? format(new Date(report.timestamp), "MMM dd, HH:mm") : "-"}
                       </TableCell>
                       <TableCell className="font-medium">{report.phoneNo}</TableCell>
                       <TableCell>
