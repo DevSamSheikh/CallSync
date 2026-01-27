@@ -26,7 +26,8 @@ export function Sidebar() {
 
   const navItems = [
     { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { label: "Financials", href: "/financials", icon: Wallet },
+    { label: "Financials", href: "/financials", icon: Wallet, hide: !user || user.role !== 'agent' },
+    { label: "Manage Finance", href: "/manage-finance", icon: Banknote, hide: !isAdminOrDeo },
     { label: "Reports", href: "/reports", icon: FileText },
     ...(isAdminOrDeo
       ? [
@@ -34,7 +35,7 @@ export function Sidebar() {
           { label: "Users", href: "/users", icon: Users },
         ]
       : []),
-  ];
+  ].filter(item => !item.hide);
 
   const SidebarContent = () => (
     <div

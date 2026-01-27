@@ -1,6 +1,7 @@
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Attendance, Report } from "@shared/schema";
+import { useLocation } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
@@ -22,7 +23,12 @@ import { Input } from "@/components/ui/input";
 export default function Financials() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [searchTerm, setSearchTerm] = useState("");
+  const [, setLocation] = useLocation();
+
+  if (user && user.role !== 'agent') {
+    setLocation("/");
+    return null;
+  }
 
   const { data: attendanceData, isLoading: isLoadingAttendance } = useQuery<Attendance[]>({
     queryKey: ["/api/attendance"],
