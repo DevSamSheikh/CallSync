@@ -332,7 +332,8 @@ export async function seed() {
         bonusAmount: 33000,
         dockAmount: 3000,
         remark: "December Salary Payout",
-        salesCount: 0
+        salesCount: 0,
+        workedHours: 0
       },
       {
         userId: demoAgent.id,
@@ -343,7 +344,8 @@ export async function seed() {
         bonusAmount: 1000,
         dockAmount: 0,
         remark: "Full day",
-        isSalaryDay: false
+        isSalaryDay: false,
+        workedHours: 9
       },
       {
         userId: demoAgent.id,
@@ -354,7 +356,8 @@ export async function seed() {
         bonusAmount: 500,
         dockAmount: 500,
         remark: "500 - Late Sign In",
-        isSalaryDay: false
+        isSalaryDay: false,
+        workedHours: 7.5
       },
       {
         userId: demoAgent.id,
@@ -365,7 +368,44 @@ export async function seed() {
         bonusAmount: 1500,
         dockAmount: 500,
         remark: "500 - Early Sign Out",
-        isSalaryDay: false
+        isSalaryDay: false,
+        workedHours: 7
+      },
+      {
+        userId: demoAgent.id,
+        date: new Date("2026-01-23"),
+        signInTime: new Date("2026-01-23 09:15:00"),
+        signOutTime: new Date("2026-01-23 18:15:00"),
+        salesCount: 4,
+        bonusAmount: 2000,
+        dockAmount: 0,
+        remark: "Perfect Shift",
+        isSalaryDay: false,
+        workedHours: 9
+      },
+      {
+        userId: demoAgent.id,
+        date: new Date("2026-01-24"),
+        signInTime: new Date("2026-01-24 08:55:00"),
+        signOutTime: new Date("2026-01-24 17:55:00"),
+        salesCount: 2,
+        bonusAmount: 1000,
+        dockAmount: 0,
+        remark: "On time",
+        isSalaryDay: false,
+        workedHours: 9
+      },
+      {
+        userId: demoAgent.id,
+        date: new Date("2026-01-25"),
+        signInTime: new Date("2026-01-25 09:00:00"),
+        signOutTime: new Date("2026-01-25 15:30:00"),
+        salesCount: 1,
+        bonusAmount: 500,
+        dockAmount: 500,
+        remark: "500 - Early Sign Out",
+        isSalaryDay: false,
+        workedHours: 6.5
       }
     ];
 
