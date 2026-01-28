@@ -172,31 +172,30 @@ export default function DataEntry() {
 
               <TabsContent value="single">
                 <Card className="border-none shadow-lg">
-                  <CardHeader>
-                    <CardTitle>New Report</CardTitle>
-                    <CardDescription>Enter details for a single call record.</CardDescription>
+                  <CardHeader className="flex flex-row items-center justify-between gap-4">
+                    <div>
+                      <CardTitle>New Report</CardTitle>
+                      <CardDescription>Enter details for a single call record.</CardDescription>
+                    </div>
+                    <div className="w-full sm:w-[240px]">
+                      <FormField
+                        control={form.control}
+                        name="fronterName"
+                        render={({ field }) => (
+                          <AgentSelect 
+                            value={field.value} 
+                            onValueChange={field.onChange}
+                            placeholder="Select Agent..."
+                            className="h-10 border-primary/20 bg-white"
+                          />
+                        )}
+                      />
+                    </div>
                   </CardHeader>
                   <CardContent className="pt-6">
                     <Form {...form}>
                       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                          <FormField
-                            control={form.control}
-                            name="fronterName"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <AgentSelect 
-                                    value={field.value} 
-                                    onValueChange={field.onChange}
-                                    placeholder="Search Fronter/Agent..."
-                                    className="min-h-[50px] text-lg px-4 border-muted-foreground/20 rounded-xl"
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
                           <FormField
                             control={form.control}
                             name="phoneNo"
@@ -367,7 +366,7 @@ export default function DataEntry() {
                           <Button 
                             type="button" 
                             variant="outline"
-                            className="min-h-[50px] text-lg px-8 border-muted-foreground/20 rounded-xl hover:bg-muted/50 w-full sm:w-auto"
+                            className="min-h-[50px] text-lg px-8 border-muted-foreground/20 rounded-xl hover:bg-muted/50 w-full sm:w-auto hover-elevate active-elevate-2"
                             onClick={() => form.reset({
                               phoneNo: "",
                               accidentYear: "",
@@ -387,7 +386,7 @@ export default function DataEntry() {
                           </Button>
                           <Button 
                             type="submit" 
-                            className="min-h-[50px] text-lg px-12 bg-[#189bfe] hover:bg-[#189bfe]/90 text-white shadow-[0_3px_0_0_#0d7cd4] active:translate-y-[1px] active:shadow-none transition-all rounded-xl w-full sm:w-auto"
+                            className="min-h-[50px] text-lg px-12 bg-[#189bfe] hover:bg-[#189bfe]/90 text-white shadow-[0_3.5px_0_0_#0d7cd4] active:translate-y-[1px] active:shadow-none transition-all rounded-xl w-full sm:w-auto"
                             disabled={createReport.isPending}
                           >
                             {createReport.isPending ? "Submitting..." : "Submit Report"}

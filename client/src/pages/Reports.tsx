@@ -178,7 +178,11 @@ export default function Reports() {
             <Printer className="w-4 h-4 mr-2" />
             Print
           </Button>
-          <Button onClick={handleExport} disabled={!reports?.length} className="shadow-lg shadow-primary/25 print:hidden">
+          <Button 
+            onClick={handleExport} 
+            disabled={!reports?.length} 
+            className="bg-[#189bfe] hover:bg-[#189bfe]/90 text-white shadow-[0_3.5px_0_0_#0d7cd4] active:translate-y-[1px] active:shadow-none transition-all rounded-xl px-6 print:hidden"
+          >
             <Download className="w-4 h-4 mr-2" />
             Export CSV
           </Button>

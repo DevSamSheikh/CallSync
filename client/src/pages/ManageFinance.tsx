@@ -291,39 +291,45 @@ export default function ManageFinance() {
                         <TableCell className="text-destructive font-medium py-4 px-4">-{entry.dockAmount}</TableCell>
                         <TableCell className="text-muted-foreground text-sm py-4 px-4 max-w-[150px] truncate">{entry.remark || "-"}</TableCell>
                         <TableCell className="py-4 px-4">
-                          <div className="flex items-center gap-2">
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="h-8 w-8 hover-elevate"
-                              onClick={() => handleEdit(entry)}
-                            >
-                              <Edit2 className="h-4 w-4" />
-                            </Button>
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 text-[#E43636] hover-elevate">
-                                  <Trash2 className="h-4 w-4" />
+                          <div className="flex justify-end pr-2">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 hover-elevate active-elevate-2">
+                                  <MoreVertical className="h-4 w-4" />
                                 </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    This will permanently delete this financial record.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction 
-                                    onClick={() => deleteAttendance.mutate(entry.id)}
-                                    className="bg-[#E43636]"
-                                  >
-                                    Delete
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="w-[160px]">
+                                <DropdownMenuItem className="gap-2" onClick={() => handleEdit(entry)}>
+                                  <Edit2 className="h-3.5 w-3.5" />
+                                  Edit
+                                </DropdownMenuItem>
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <DropdownMenuItem className="gap-2 text-[#E43636] focus:text-[#E43636]" onSelect={e => e.preventDefault()}>
+                                      <Trash2 className="h-3.5 w-3.5" />
+                                      Delete
+                                    </DropdownMenuItem>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        This will permanently delete this financial record.
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                      <AlertDialogAction 
+                                        onClick={() => deleteAttendance.mutate(entry.id)}
+                                        className="bg-[#E43636] text-white hover:bg-[#E43636]/90 shadow-[0_2px_0_0_#b91c1c] active:translate-y-[1px] active:shadow-none"
+                                      >
+                                        Delete
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -415,7 +421,11 @@ export default function ManageFinance() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full" disabled={updateAttendance.isPending}>
+              <Button 
+                type="submit" 
+                className="w-full bg-[#189bfe] hover:bg-[#189bfe]/90 text-white shadow-[0_3.5px_0_0_#0d7cd4] active:translate-y-[1px] active:shadow-none transition-all rounded-xl h-11 text-lg font-bold" 
+                disabled={updateAttendance.isPending}
+              >
                 {updateAttendance.isPending ? "Updating..." : "Update Record"}
               </Button>
             </form>

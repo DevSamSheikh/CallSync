@@ -180,7 +180,7 @@ export default function Users() {
 
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button className="shadow-lg shadow-primary/25">
+            <Button className="bg-[#189bfe] hover:bg-[#189bfe]/90 text-white shadow-[0_3.5px_0_0_#0d7cd4] active:translate-y-[1px] active:shadow-none transition-all rounded-xl px-6">
               <UserPlus className="w-4 h-4 mr-2" />
               Add User
             </Button>
@@ -396,7 +396,11 @@ export default function Users() {
                   )}
                 />
                 <div className="flex justify-end pt-4">
-                  <Button type="submit" disabled={createUser.isPending}>
+                  <Button 
+                    type="submit" 
+                    disabled={createUser.isPending}
+                    className="bg-[#189bfe] hover:bg-[#189bfe]/90 text-white shadow-[0_3.5px_0_0_#0d7cd4] active:translate-y-[1px] active:shadow-none transition-all rounded-xl px-8"
+                  >
                     {createUser.isPending ? "Creating..." : "Create User"}
                   </Button>
                 </div>

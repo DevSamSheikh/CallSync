@@ -38,21 +38,26 @@ export function AgentSelect({ value, onValueChange, placeholder = "Search or sel
           role="combobox"
           aria-expanded={open}
           className={cn(
-            "justify-between bg-white border-primary/20 hover:border-primary/40 h-10 shadow-sm w-full",
+            "justify-between bg-white border-primary/20 hover:border-primary/40 h-10 shadow-sm w-full transition-all hover-elevate active-elevate-2",
             !value && "text-muted-foreground",
             className
           )}
         >
-          {value
-            ? agents.find((agent) => agent.name === value)?.name
-            : placeholder}
+          <div className="flex items-center gap-2 truncate">
+            <div className="w-2 h-2 rounded-full bg-primary shrink-0" />
+            <span className="truncate">
+              {value
+                ? agents.find((agent) => agent.name === value)?.name
+                : placeholder}
+            </span>
+          </div>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
-        <Command>
-          <CommandInput placeholder="Search agent name..." />
-          <CommandList>
+      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 shadow-xl border-primary/10" align="start">
+        <Command className="rounded-xl overflow-hidden">
+          <CommandInput placeholder="Search agent name..." className="h-10" />
+          <CommandList className="max-h-[300px]">
             <CommandEmpty>No agent found.</CommandEmpty>
             <CommandGroup>
               {agents.map((agent) => (
@@ -63,14 +68,26 @@ export function AgentSelect({ value, onValueChange, placeholder = "Search or sel
                     onValueChange(currentValue === value ? "" : currentValue);
                     setOpen(false);
                   }}
+                  className="py-3 px-4 flex items-center gap-3 cursor-pointer hover:bg-primary/5 transition-colors"
                 >
+                  <div className={cn(
+                    "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all",
+                    agent.name === value 
+                      ? "bg-primary text-white scale-110" 
+                      : "bg-muted text-muted-foreground"
+                  )}>
+                    {agent.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">{agent.name}</p>
+                    <p className="text-xs text-muted-foreground truncate">ID: {agent.username}</p>
+                  </div>
                   <Check
                     className={cn(
-                      "mr-2 h-4 w-4",
+                      "h-4 w-4 text-primary",
                       agent.name === value ? "opacity-100" : "opacity-0"
                     )}
                   />
-                  {agent.name}
                 </CommandItem>
               ))}
             </CommandGroup>
