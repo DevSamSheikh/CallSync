@@ -30,16 +30,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import { useQuery } from "@tanstack/react-query";
-import type { User } from "@shared/schema";
+import { AgentSelect } from "@/components/shared/AgentSelect";
 import Papa from "papaparse";
 import { useRef, useState, useMemo } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -58,16 +49,12 @@ import { cn } from "@/lib/utils";
 export default function DataEntry() {
   const { user } = useAuth();
   const { data: reports, isLoading: isLoadingReports } = useReports();
-  const { data: users } = useQuery<User[]>({ queryKey: ["/api/users"] });
   const createReport = useCreateReport();
   const bulkCreate = useBulkCreateReports();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const [isProcessingFile, setIsProcessingFile] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [open, setOpen] = useState(false);
-
-  const agents = useMemo(() => users?.filter(u => u.role === "agent") || [], [users]);
 
   const form = useForm<InsertReport>({
     resolver: zodResolver(insertReportSchema),
@@ -161,70 +148,12 @@ export default function DataEntry() {
 
   const isAdminOrDeo = user?.role === "admin" || user?.role === "deo";
 
-  const AgentSelect = () => (
-    isAdminOrDeo && (
-      <div className="flex flex-col gap-1.5 w-full sm:w-[240px]">
-        <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              role="combobox"
-              aria-expanded={open}
-              className={cn(
-                "justify-between bg-white border-primary/20 hover:border-primary/40 h-10 shadow-sm",
-                !form.watch("fronterName") && "text-muted-foreground"
-              )}
-            >
-              {form.watch("fronterName")
-                ? agents.find((agent) => agent.name === form.watch("fronterName"))?.name
-                : "Search agents..."}
-              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-[240px] p-0" align="end">
-            <Command>
-              <CommandInput placeholder="Search agent name..." />
-              <CommandList>
-                <CommandEmpty>No agent found.</CommandEmpty>
-                <CommandGroup>
-                  {agents.map((agent) => (
-                    <CommandItem
-                      key={agent.id}
-                      value={agent.name}
-                      onSelect={() => {
-                        form.setValue("fronterName", agent.name);
-                        setOpen(false);
-                      }}
-                    >
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          agent.name === form.watch("fronterName")
-                            ? "opacity-100"
-                            : "opacity-0"
-                        )}
-                      />
-                      {agent.name}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
-      </div>
-    )
-  );
-
   return (
     <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-500 max-w-5xl mx-auto px-4 sm:px-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl sm:text-4xl font-display font-bold tracking-tight">New Report</h1>
-          <p className="text-muted-foreground text-sm sm:text-base mt-1">Enter details for a single call record</p>
-        </div>
-        <div className="w-full sm:w-auto">
-          <AgentSelect />
+          <h1 className="text-3xl sm:text-4xl font-display font-bold tracking-tight">Data Entry</h1>
+          <p className="text-muted-foreground text-sm sm:text-base mt-1">Manage call records and imports</p>
         </div>
       </div>
 
@@ -251,6 +180,23 @@ export default function DataEntry() {
                     <Form {...form}>
                       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                          <FormField
+                            control={form.control}
+                            name="fronterName"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <AgentSelect 
+                                    value={field.value} 
+                                    onValueChange={field.onChange}
+                                    placeholder="Search Fronter/Agent..."
+                                    className="min-h-[50px] text-lg px-4 border-muted-foreground/20 rounded-xl"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
                           <FormField
                             control={form.control}
                             name="phoneNo"
@@ -461,36 +407,11 @@ export default function DataEntry() {
                       <CardDescription>Upload a CSV file containing multiple call records.</CardDescription>
                     </div>
                     <div className="flex flex-col gap-1.5 w-[240px]">
-                      <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
-                        <Select 
-                          value={form.watch("fronterName")} 
-                          onValueChange={(val) => form.setValue("fronterName", val)}
-                        >
-                          <SelectTrigger className="pl-10 h-10 border-primary/20 bg-white">
-                            <SelectValue placeholder="Search or select agent..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <div className="p-2 sticky top-0 bg-popover z-20 border-b">
-                              <Input
-                                placeholder="Search agents..."
-                                className="h-8 text-xs"
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                onClick={(e) => e.stopPropagation()}
-                              />
-                            </div>
-                            <div className="max-h-[200px] overflow-y-auto">
-                              {agents.filter(a => 
-                                a.name.toLowerCase().includes(searchTerm.toLowerCase())
-                              ).map((agent) => (
-                                <SelectItem key={agent.id} value={agent.name}>
-                                  {agent.name}
-                                </SelectItem>
-                              ))}
-                            </div>
-                          </SelectContent>
-                        </Select>
-                      </div>
+                      <AgentSelect 
+                        value={form.watch("fronterName")} 
+                        onValueChange={(val) => form.setValue("fronterName", val)}
+                        className="h-10 border-primary/20 bg-white"
+                      />
                     </div>
                   </CardHeader>
                   <CardContent>
