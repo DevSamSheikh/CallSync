@@ -1,3 +1,10 @@
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { MoreVertical } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Attendance, Report, User, insertAttendanceSchema } from "@shared/schema";
@@ -294,7 +301,7 @@ export default function ManageFinance() {
                           <div className="flex justify-end pr-2">
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 hover-elevate active-elevate-2">
+                                <Button variant="ghost" size="icon" className="h-8 w-8 hover-elevate">
                                   <MoreVertical className="h-4 w-4" />
                                 </Button>
                               </DropdownMenuTrigger>
@@ -305,7 +312,7 @@ export default function ManageFinance() {
                                 </DropdownMenuItem>
                                 <AlertDialog>
                                   <AlertDialogTrigger asChild>
-                                    <DropdownMenuItem className="gap-2 text-[#E43636] focus:text-[#E43636]" onSelect={e => e.preventDefault()}>
+                                    <DropdownMenuItem className="gap-2 text-destructive focus:text-destructive" onSelect={e => e.preventDefault()}>
                                       <Trash2 className="h-3.5 w-3.5" />
                                       Delete
                                     </DropdownMenuItem>
@@ -321,7 +328,7 @@ export default function ManageFinance() {
                                       <AlertDialogCancel>Cancel</AlertDialogCancel>
                                       <AlertDialogAction 
                                         onClick={() => deleteAttendance.mutate(entry.id)}
-                                        className="bg-[#E43636] text-white hover:bg-[#E43636]/90 shadow-[0_2px_0_0_#b91c1c] active:translate-y-[1px] active:shadow-none"
+                                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                       >
                                         Delete
                                       </AlertDialogAction>
@@ -423,7 +430,7 @@ export default function ManageFinance() {
               />
               <Button 
                 type="submit" 
-                className="w-full bg-[#189bfe] hover:bg-[#189bfe]/90 text-white shadow-[0_3.5px_0_0_#0d7cd4] active:translate-y-[1px] active:shadow-none transition-all rounded-xl h-11 text-lg font-bold" 
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground min-h-9 px-4 py-2" 
                 disabled={updateAttendance.isPending}
               >
                 {updateAttendance.isPending ? "Updating..." : "Update Record"}

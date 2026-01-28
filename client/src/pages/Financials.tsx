@@ -41,11 +41,22 @@ export default function Financials() {
   const markAttendance = useMutation({
     mutationFn: async (type: 'in' | 'out') => {
       const res = await apiRequest("POST", "/api/attendance/mark", { type });
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || "Failed to mark attendance");
+      }
       return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/attendance"] });
       toast({ title: "Attendance Marked", description: "Your attendance has been recorded successfully." });
+    },
+    onError: (error: Error) => {
+      toast({ 
+        title: "Error", 
+        description: error.message,
+        variant: "destructive"
+      });
     }
   });
 
@@ -162,7 +173,7 @@ export default function Financials() {
         <div className="flex flex-wrap gap-3 items-center">
           {!todayAttendance?.signInTime ? (
             <Button 
-              className="bg-[#189bfe] hover:bg-[#189bfe]/90 text-white min-h-[44px] shadow-[0_3.5px_0_0_#0d7cd4] active:translate-y-[1px] active:shadow-none transition-all rounded-xl w-full sm:w-auto px-8 font-bold"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground min-h-9 shadow-md active-elevate-2 w-full sm:w-auto px-8"
               onClick={() => markAttendance.mutate('in')}
               disabled={markAttendance.isPending}
             >
@@ -171,13 +182,13 @@ export default function Financials() {
             </Button>
           ) : !todayAttendance?.signOutTime ? (
             <div className="flex items-center gap-3 w-full sm:w-auto">
-              <div className="flex items-center gap-2 bg-blue-50 text-[#189bfe] px-4 py-2 rounded-xl border border-blue-100 font-mono font-bold shadow-sm">
+              <div className="flex items-center gap-2 bg-blue-50 text-blue-600 px-4 py-1.5 rounded-lg border border-blue-100 font-mono font-bold">
                 <Clock className="w-4 h-4 animate-pulse" />
                 {elapsed}
               </div>
               <Button 
                 variant="outline"
-                className="border-[#f51288]/20 hover:bg-[#f51288]/5 text-[#f51288] min-h-[44px] shadow-[0_3.5px_0_0_#db0d7a] active:translate-y-[1px] active:shadow-none transition-all rounded-xl flex-1 sm:flex-none px-8 font-bold"
+                className="border-primary/20 hover:bg-primary/5 min-h-9 shadow-sm active-elevate-2 flex-1 sm:flex-none px-8"
                 onClick={() => markAttendance.mutate('out')}
                 disabled={markAttendance.isPending}
               >

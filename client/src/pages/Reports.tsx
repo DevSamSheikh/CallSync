@@ -181,7 +181,7 @@ export default function Reports() {
           <Button 
             onClick={handleExport} 
             disabled={!reports?.length} 
-            className="bg-[#189bfe] hover:bg-[#189bfe]/90 text-white shadow-[0_3.5px_0_0_#0d7cd4] active:translate-y-[1px] active:shadow-none transition-all rounded-xl px-6 print:hidden"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-md min-h-9 px-4 py-2 print:hidden"
           >
             <Download className="w-4 h-4 mr-2" />
             Export CSV
@@ -344,57 +344,48 @@ export default function Reports() {
                         </TableCell>
                         {isAdminOrDeo && (
                           <TableCell className="pr-6 text-right print:hidden">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8">
-                                  <MoreVertical className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end" className="w-[160px]">
-                                <DropdownMenuItem 
-                                  className="gap-2"
-                                  onClick={() => window.location.href = `/profile/${report.agentId}`}
-                                >
-                                  <Eye className="h-3.5 w-3.5" />
-                                  Preview
-                                </DropdownMenuItem>
-                                <DropdownMenuItem 
-                                  className="gap-2"
-                                  onClick={() => handleEdit(report)}
-                                >
-                                  <Edit2 className="h-3.5 w-3.5" />
-                                  Edit
-                                </DropdownMenuItem>
-                                <AlertDialog>
-                                  <AlertDialogTrigger asChild>
-                                    <DropdownMenuItem 
-                                      className="gap-2 text-[#E43636] focus:text-[#E43636]"
-                                      onSelect={(e) => e.preventDefault()}
+                            <div className="flex justify-end gap-2">
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 hover-elevate"
+                                onClick={() => window.location.href = `/profile/${report.agentId}`}
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 hover-elevate"
+                                onClick={() => handleEdit(report)}
+                              >
+                                <Edit2 className="h-4 w-4" />
+                              </Button>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 text-[#E43636] hover-elevate">
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      This action cannot be undone. This will permanently delete the report.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction 
+                                      onClick={() => deleteReport.mutate(report.id)}
+                                      className="bg-[#E43636] text-white hover:bg-[#E43636]/90 shadow-sm"
                                     >
-                                      <Trash2 className="h-3.5 w-3.5" />
                                       Delete
-                                    </DropdownMenuItem>
-                                  </AlertDialogTrigger>
-                                  <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                      <AlertDialogDescription>
-                                        This action cannot be undone. This will permanently delete the report.
-                                      </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                      <AlertDialogAction 
-                                        onClick={() => deleteReport.mutate(report.id)}
-                                        className="bg-[#E43636] text-white hover:bg-[#E43636]/90"
-                                      >
-                                        Delete
-                                      </AlertDialogAction>
-                                    </AlertDialogFooter>
-                                  </AlertDialogContent>
-                                </AlertDialog>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </div>
                           </TableCell>
                         )}
                       </TableRow>

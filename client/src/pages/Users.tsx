@@ -180,7 +180,7 @@ export default function Users() {
 
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-[#189bfe] hover:bg-[#189bfe]/90 text-white shadow-[0_3.5px_0_0_#0d7cd4] active:translate-y-[1px] active:shadow-none transition-all rounded-xl px-6">
+            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-md min-h-9 px-4 py-2">
               <UserPlus className="w-4 h-4 mr-2" />
               Add User
             </Button>
@@ -399,7 +399,7 @@ export default function Users() {
                   <Button 
                     type="submit" 
                     disabled={createUser.isPending}
-                    className="bg-[#189bfe] hover:bg-[#189bfe]/90 text-white shadow-[0_3.5px_0_0_#0d7cd4] active:translate-y-[1px] active:shadow-none transition-all rounded-xl px-8"
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground min-h-9 px-4 py-2"
                   >
                     {createUser.isPending ? "Creating..." : "Create User"}
                   </Button>
@@ -517,70 +517,48 @@ export default function Users() {
                       </TableCell>
                       <TableCell className="pr-6 text-right">
                         <div className="flex justify-end gap-2  ml-auto ">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8"
-                              >
-                                <MoreVertical className="h-4 w-4" />
+                          {isAdmin && (
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-8 w-8 hover-elevate"
+                              onClick={() => setLocation(`/profile/${user.id}`)}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          )}
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-8 w-8 hover-elevate"
+                            onClick={() => handleEdit(user)}
+                          >
+                            <Edit2 className="h-4 w-4" />
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-[#E43636] hover-elevate">
+                                <Trash2 className="h-4 w-4" />
                               </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              {isAdmin && (
-                                <DropdownMenuItem
-                                  className="gap-2"
-                                  onClick={() =>
-                                    setLocation(`/profile/${user.id}`)
-                                  }
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This action cannot be undone. This will permanently delete the user account.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction 
+                                  onClick={() => deleteUser.mutate(user.id)}
+                                  className="bg-[#E43636] text-white hover:bg-[#E43636]/90 shadow-sm"
                                 >
-                                  <Eye className="h-3.5 w-3.5" />
-                                  Preview
-                                </DropdownMenuItem>
-                              )}
-                              <DropdownMenuItem
-                                className="gap-2"
-                                onClick={() => handleEdit(user)}
-                              >
-                                <Edit2 className="h-3.5 w-3.5" />
-                                Edit
-                              </DropdownMenuItem>
-                              <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <DropdownMenuItem
-                                    className="gap-2 text-destructive focus:text-destructive"
-                                    onSelect={(e) => e.preventDefault()}
-                                  >
-                                    <Trash2 className="h-3.5 w-3.5" />
-                                    Delete
-                                  </DropdownMenuItem>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>
-                                      Are you absolutely sure?
-                                    </AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      This action cannot be undone. This will
-                                      permanently delete the user account.
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>
-                                      Cancel
-                                    </AlertDialogCancel>
-                                    <AlertDialogAction
-                                      onClick={() => deleteUser.mutate(user.id)}
-                                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                    >
-                                      Delete
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </div>
                       </TableCell>
                     </TableRow>
