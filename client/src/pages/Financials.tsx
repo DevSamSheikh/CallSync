@@ -41,10 +41,8 @@ export default function Financials() {
   const markAttendance = useMutation({
     mutationFn: async (type: 'in' | 'out') => {
       const res = await apiRequest("POST", "/api/attendance/mark", { type });
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.message || "Failed to mark attendance");
-      }
+      // apiRequest already handles non-ok responses and throws errors
+      // If it reaches here, it's successful
       return res.json();
     },
     onSuccess: () => {

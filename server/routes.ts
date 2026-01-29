@@ -192,6 +192,18 @@ export async function registerRoutes(
     }
   });
 
+  app.post("/api/attendance/mark", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    
+    try {
+      const { type } = req.body;
+      const attendance = await storage.markAttendance(req.user!.id, type);
+      res.json(attendance);
+    } catch (e: any) {
+      res.status(400).json({ message: e.message });
+    }
+  });
+
   // Seed data on startup
   await seed();
 
